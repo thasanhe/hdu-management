@@ -34,7 +34,9 @@ class AppDrawer extends StatelessWidget {
       );
 
       widgetList.add(button);
-      widgetList.add(Divider());
+      widgetList.add(Divider(
+        thickness: 2,
+      ));
     });
 
     return widgetList;

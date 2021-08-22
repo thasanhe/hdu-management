@@ -18,7 +18,7 @@ class PatientProfile extends StatelessWidget {
             tabs: [
               Tab(
                 child: Container(
-                  color: Colors.red,
+                  // color: Colors.red,
                   child: Center(
                     child: Text(
                       'History',
@@ -29,7 +29,7 @@ class PatientProfile extends StatelessWidget {
               ),
               Tab(
                 child: Container(
-                  color: Colors.green,
+                  // color: Colors.green,
                   child: Center(
                     child: Text(
                       'Management',
@@ -40,7 +40,7 @@ class PatientProfile extends StatelessWidget {
               ),
               Tab(
                 child: Container(
-                  color: Colors.grey[600],
+                  // color: Colors.grey[600],
                   child: Center(
                     child: Text(
                       'Summary',

@@ -97,7 +97,9 @@ class _HomePageState extends State<HomePage> {
           child: lt);
 
       listItems.add(tb);
-      listItems.add(Divider());
+      listItems.add(Divider(
+        thickness: 2,
+      ));
     });
 
     return ListView(
