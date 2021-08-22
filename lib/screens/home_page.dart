@@ -1,6 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:hdu_management/widgets/drawer_home.dart';
+import 'package:hdu_management/data/data.dart';
+import 'package:hdu_management/models/gender.dart';
+import 'package:hdu_management/screens/patient_profile.dart';
+import 'package:hdu_management/widgets/main_drawer.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -71,11 +74,43 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Widget buildBody() {
+    final patients = getPatients();
+    List<Widget> listItems = [];
+
+    patients.forEach((patient) {
+      ListTile lt = ListTile(
+        leading: Icon(Icons.person),
+        title: Text(patient.name),
+        subtitle: Text(patient.gender == Gender.female ? 'Female' : 'Male'),
+      );
+
+      TextButton tb = TextButton(
+          onPressed: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => PatientProfile(
+                          patient: patient,
+                        )));
+          },
+          child: lt);
+
+      listItems.add(tb);
+      listItems.add(Divider());
+    });
+
+    return ListView(
+      children: listItems,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: buildSearchField(),
       drawer: AppDrawer(),
+      body: buildBody(),
     );
   }
 }

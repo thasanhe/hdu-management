@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:hdu_management/data/data.dart';
 import 'package:hdu_management/models/drawer_item.dart';
 
 class AppDrawer extends StatelessWidget {
@@ -41,31 +42,11 @@ class AppDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<DrawerItem> items = [];
-    items.add(DrawerItem(
-        titleText: 'Admission',
-        iconData: Icons.create,
-        onPressed: () {
-          print("Clicked Admission");
-        }));
-    items.add(DrawerItem(
-        titleText: 'Ward Round',
-        iconData: Icons.wheelchair_pickup,
-        onPressed: () => print('Clicked Ward Round')));
-    items.add(DrawerItem(
-        titleText: 'Patient Management',
-        iconData: Icons.person,
-        onPressed: () => print('Clicked Patient Management')));
-    items.add(DrawerItem(
-        titleText: 'Duty Roster',
-        iconData: Icons.work,
-        onPressed: () => print('Clicked Daily roster')));
-
     return Container(
       child: Drawer(
         semanticLabel: 'HDU',
         child: ListView(
-          children: buildDrawer(items),
+          children: buildDrawer(getMainDrawerItems()),
         ),
       ),
     );
