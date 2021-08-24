@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:hdu_management/models/drawer_item.dart';
 import 'package:hdu_management/models/gender.dart';
 import 'package:hdu_management/models/patient.dart';
+import 'package:hdu_management/screens/admission.dart';
 
 List<Patient> getPatients() {
   Patient p1 = Patient(name: 'Dhammika', gender: Gender.male, bhtNumber: 1);
@@ -43,30 +44,11 @@ List<Patient> getPatients() {
 
 List<DrawerItem> getMainDrawerItems() {
   List<DrawerItem> items = [];
-  items.add(DrawerItem(
-      titleText: 'Ward Summary',
-      iconData: CupertinoIcons.chart_bar_square,
-      onPressed: () {
-        print("Clicked Summary");
-      }));
-  items.add(DrawerItem(
-      titleText: 'Admission',
-      iconData: Icons.create,
-      onPressed: () {
-        print("Clicked Admission");
-      }));
-  items.add(DrawerItem(
-      titleText: 'Ward Round',
-      iconData: Icons.wheelchair_pickup,
-      onPressed: () => print('Clicked Ward Round')));
-  items.add(DrawerItem(
-      titleText: 'Patient Management',
-      iconData: Icons.person,
-      onPressed: () => print('Clicked Patient Management')));
-  items.add(DrawerItem(
-      titleText: 'Duty Roster',
-      iconData: Icons.work,
-      onPressed: () => print('Clicked Daily roster')));
+  items.add(DrawerItem('Patient Search', CupertinoIcons.person_3_fill));
+  items.add(DrawerItem('Admission', Icons.create));
+  items.add(DrawerItem('Ward Round', Icons.wheelchair_pickup));
+  items.add(DrawerItem('Patient Management', Icons.manage_accounts));
+  items.add(DrawerItem('Duty Roster', Icons.work));
 
   return items;
 }

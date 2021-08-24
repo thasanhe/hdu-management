@@ -1,10 +1,15 @@
+import 'dart:js';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hdu_management/data/data.dart';
 import 'package:hdu_management/models/drawer_item.dart';
 
 class AppDrawer extends StatelessWidget {
-  List<Widget> buildDrawer(List<DrawerItem> items) {
+  final PageController pageController;
+  AppDrawer({required this.pageController});
+
+  List<Widget> buildDrawer(List<DrawerItem> items, BuildContext context) {
     List<Widget> widgetList = [];
 
     final button = Container(
@@ -25,7 +30,11 @@ class AppDrawer extends StatelessWidget {
 
     items.forEach((item) {
       final button = TextButton(
-        onPressed: item.onPressed,
+        onPressed: () {
+          pageController.animateToPage(items.indexOf(item),
+              duration: Duration(milliseconds: 300), curve: Curves.easeInOut);
+          Navigator.pop(context);
+        },
         child: ListTile(
           title: item.title,
           leading: item.icon,
@@ -48,7 +57,7 @@ class AppDrawer extends StatelessWidget {
       child: Drawer(
         semanticLabel: 'HDU',
         child: ListView(
-          children: buildDrawer(getMainDrawerItems()),
+          children: buildDrawer(getMainDrawerItems(), context),
         ),
       ),
     );

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hdu_management/screens/home_page.dart';
+import 'package:hdu_management/screens/home.dart';
 
 void main() {
   runApp(MyApp());

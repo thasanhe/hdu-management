@@ -3,15 +3,12 @@ import 'package:flutter/cupertino.dart';
 class DrawerItem {
   late Text title;
   late Icon icon;
-  late VoidCallback onPressed;
 
-  DrawerItem({
-    required String titleText,
-    required IconData iconData,
-    required VoidCallback onPressed,
-  }) {
+  DrawerItem(
+    String titleText,
+    IconData iconData,
+  ) {
     title = Text(titleText);
     icon = Icon(iconData);
-    this.onPressed = onPressed;
   }
 }
