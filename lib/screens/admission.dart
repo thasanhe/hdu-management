@@ -50,7 +50,8 @@ class _AdmissionPageState extends State<Admission> {
               actions: [
                 TextButton(
                     onPressed: () {
-                      Navigator.pop(context);
+                      Navigator.popUntil(context, (route) => route.isFirst);
+                      // Navigator.pop(context);
                     },
                     child: Text('ok'))
               ],
