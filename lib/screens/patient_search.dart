@@ -4,6 +4,7 @@ import 'package:hdu_management/models/gender.dart';
 import 'package:hdu_management/models/patient.dart';
 import 'package:hdu_management/screens/patient_profile.dart';
 import 'package:hdu_management/services/patient_service.dart';
+import 'package:hdu_management/utils/utils.dart';
 import 'package:hdu_management/widgets/progress.dart';
 
 class PatientSearch extends StatefulWidget {
@@ -31,17 +32,37 @@ class _PatientSearchState extends State<PatientSearch> {
     });
   }
 
+  getSubtitle(Patient patient) {
+    final gender = patient.gender == Gender.male ? 'male' : 'female';
+    final admitionDate =
+        '${patient.dateOfAdmissionHDU!.day}/${patient.dateOfAdmissionHDU!.month}/${patient.dateOfAdmissionHDU!.year}';
+
+    return Text(
+      'DOA: $admitionDate   $gender   ${patient.age}y',
+      style: TextStyle(fontSize: 12),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     List<Widget> buildListItems() {
       List<Widget> listItems = [];
 
       this.patientsList!.forEach((patient) {
-        ListTile lt = ListTile(
-          leading: Icon(Icons.person),
+        Card lt = Card(
+            child: ListTile(
+          leading: CircleAvatar(
+            child: patient.bedNumber != null
+                ? Text(patient.bedNumber!.toString())
+                : Text('N/A'),
+          ),
+          trailing: Text(
+            Utils.patientStatusToString(patient.currentStatus).toUpperCase(),
+            style: TextStyle(fontSize: 12),
+          ),
           title: Text(patient.name),
-          subtitle: Text(patient.gender == Gender.female ? 'Female' : 'Male'),
-        );
+          subtitle: getSubtitle(patient),
+        ));
 
         TextButton tb = TextButton(
             onPressed: () {
@@ -57,9 +78,6 @@ class _PatientSearchState extends State<PatientSearch> {
             child: lt);
 
         listItems.add(tb);
-        listItems.add(Divider(
-          thickness: 2,
-        ));
       });
 
       return listItems;

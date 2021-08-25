@@ -117,8 +117,8 @@ class _HomePageState extends State<HomePage> {
 
   final _pageTitles = [
     'Patient Search',
-    'Admissions',
-    'Ward Round',
+    // 'Admissions',
+    // 'Ward Round',
     'Patient Management',
     'Duty Roster'
   ];
@@ -133,8 +133,8 @@ class _HomePageState extends State<HomePage> {
       body: PageView(
         children: [
           PatientSearch(),
-          Admission(),
-          WardRound(),
+          // Admission(),
+          // WardRound(),
           PatientManagement(),
           DutyRoster(),
         ],

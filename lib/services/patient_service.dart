@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hdu_management/models/gender.dart';
 import 'package:hdu_management/models/patient.dart';
+import 'package:hdu_management/utils/utils.dart';
 
 class PatientService {
   final patientsRef = FirebaseFirestore.instance.collection('patients');
@@ -24,9 +25,20 @@ class PatientService {
         "id": patient.bhtNumber,
         "age": patient.age,
         "nic": patient.nic,
-        "dateOfAdmission": patient.dateOfAdmission,
+        "dateOfAdmissionHDU": patient.dateOfAdmissionHDU,
         "contactNumber": patient.contactNumber,
-        "bht": patient.bhtNumber,
+        "symptomsDate": patient.symptomsDate,
+        "pcrRatDate": patient.pcrRatDate,
+        "currentStatus": Utils.patientStatusToString(patient.currentStatus),
+        "dateOfAdmissionHospital": patient.dateOfAdmissionHospital,
+        "dateOfDischarge": patient.dateOfDischarge,
+        "dateOfTransfer": patient.dateOfTransfer,
+        "dateOfLama": patient.dateOfLama,
+        "dateOfDeath": patient.dateOfDeath,
+        "bhtNumber": patient.bhtNumber,
+        "bedNumber": patient.bedNumber,
+        "history": patient.history,
+        "symptoms": patient.symptoms,
       });
       print('Created patient');
 

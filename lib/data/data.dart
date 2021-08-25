@@ -45,8 +45,8 @@ import 'package:hdu_management/screens/admission.dart';
 List<DrawerItem> getMainDrawerItems() {
   List<DrawerItem> items = [];
   items.add(DrawerItem('Patient Search', CupertinoIcons.person_3_fill));
-  items.add(DrawerItem('Admission', Icons.create));
-  items.add(DrawerItem('Ward Round', Icons.wheelchair_pickup));
+  // items.add(DrawerItem('Admission', Icons.create));
+  // items.add(DrawerItem('Ward Round', Icons.wheelchair_pickup));
   items.add(DrawerItem('Patient Management', Icons.manage_accounts));
   items.add(DrawerItem('Duty Roster', Icons.work));
 

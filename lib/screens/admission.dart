@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hdu_management/models/gender.dart';
 import 'package:hdu_management/models/patient.dart';
+import 'package:hdu_management/models/patient_status.dart';
 import 'package:hdu_management/services/patient_service.dart';
 
 class Admission extends StatefulWidget {
@@ -13,9 +14,21 @@ class Admission extends StatefulWidget {
 
 class _AdmissionPageState extends State<Admission> {
   final _formStateKey = GlobalKey<FormState>();
+  final _symtompsDateController = TextEditingController();
+  final _pcrRatDateController = TextEditingController();
+
   String? name;
   String? bht;
   String? gender;
+  DateTime? symptomsDate;
+  DateTime? pcrRatDate;
+  int? bedNumber;
+  int? age;
+  String? symptoms;
+  String? history;
+  String? nic;
+  DateTime? dateOfAdmissionHospital;
+  String? contactNumber;
   late PatientService patientService;
 
   @override
@@ -27,16 +40,31 @@ class _AdmissionPageState extends State<Admission> {
   submit() async {
     FocusScope.of(context).unfocus();
     final formState = _formStateKey.currentState;
+    print("On submit");
     if (formState!.validate()) {
+      print("Form state valid");
       formState.save();
+      print("Form state save");
       Patient patient = Patient(
-          dateOfAdmission: DateTime.now(),
-          id: this.bht,
-          name: this.name!,
-          bhtNumber: int.parse(this.bht!),
-          gender: this.gender == 'Male' ? Gender.male : Gender.female);
+        dateOfAdmissionHDU: DateTime.now(),
+        id: this.bht,
+        name: this.name!,
+        bhtNumber: double.parse(this.bht!),
+        gender: this.gender == 'Male' ? Gender.male : Gender.female,
+        currentStatus: PatientStatus.inward,
+        symptomsDate: this.symptomsDate!,
+        pcrRatDate: this.pcrRatDate!,
+        bedNumber: this.bedNumber,
+        age: this.age!,
+        symptoms: this.symptoms,
+        history: this.history,
+        nic: this.nic,
+        dateOfAdmissionHospital: this.dateOfAdmissionHospital,
+        contactNumber: this.contactNumber,
+      );
       String alertTitle = 'Patient successfully admitted!';
       try {
+        print("Before create");
         await patientService.createPatient(patient);
         formState.reset();
       } catch (error) {
@@ -63,11 +91,42 @@ class _AdmissionPageState extends State<Admission> {
   getInputDecoration(String label, {String? hint}) {
     return InputDecoration(
       isDense: true,
-      border: OutlineInputBorder(),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
       labelText: label,
       labelStyle: TextStyle(fontSize: 15.0),
       hintText: hint,
     );
+  }
+
+  onTapDatePickerSymptoms() async {
+    try {
+      this.symptomsDate = await showDatePicker(
+        context: context,
+        initialDate: DateTime.now(),
+        firstDate: DateTime.now().subtract(Duration(days: 30)),
+        lastDate: DateTime.now(),
+      );
+      _symtompsDateController.text =
+          '${symptomsDate!.day}/${symptomsDate!.month}/${symptomsDate!.year}';
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  onTapDatePickerPCR() async {
+    try {
+      this.pcrRatDate = await showDatePicker(
+        context: context,
+        initialDate: DateTime.now(),
+        firstDate: DateTime.now().subtract(Duration(days: 30)),
+        lastDate: DateTime.now(),
+      );
+
+      _pcrRatDateController.text =
+          '${pcrRatDate!.day}/${pcrRatDate!.month}/${pcrRatDate!.year}';
+    } catch (e) {
+      print(e);
+    }
   }
 
   @override
@@ -131,54 +190,117 @@ class _AdmissionPageState extends State<Admission> {
                       SizedBox(
                         height: 15,
                       ),
+                      TextFormField(
+                        onSaved: (input) => {bedNumber = int.parse(input!)},
+                        decoration: getInputDecoration("Bed Number"),
+                        keyboardType: TextInputType.number,
+                      ),
+                      SizedBox(
+                        height: 15,
+                      ),
+                      TextFormField(
+                        validator: (input) {
+                          if (input == null || input.isEmpty) {
+                            return "Please enter Age";
+                          }
+                          return null;
+                        },
+                        onSaved: (input) => {age = int.parse(input!)},
+                        decoration: getInputDecoration("Age"),
+                        keyboardType: TextInputType.number,
+                      ),
+                      SizedBox(
+                        height: 15,
+                      ),
+                      TextFormField(
+                        controller: _symtompsDateController,
+                        validator: (input) {
+                          if (input == null || input.isEmpty) {
+                            return "Please select symptoms Started Date";
+                          }
+                          return null;
+                        },
+                        onTap: onTapDatePickerSymptoms,
+                        // onSaved: (input) =>
+                        //     {symptomsDate = DateTime.parse(input!)},
+                        decoration: getInputDecoration("Symptoms stated date"),
+                      ),
+                      SizedBox(
+                        height: 15,
+                      ),
+                      TextFormField(
+                        controller: _pcrRatDateController,
+                        validator: (input) {
+                          if (input == null || input.isEmpty) {
+                            return "Please select PCR/RAT positive date";
+                          }
+                          return null;
+                        },
+                        onTap: onTapDatePickerPCR,
+                        // onSaved: (input) =>
+                        //     {symptomsDate = DateTime.parse(input!)},
+                        decoration: getInputDecoration("PCR/RAT Date"),
+                      ),
+                      SizedBox(
+                        height: 15,
+                      ),
+                      SizedBox(
+                        height: 15,
+                      ),
                     ],
                   ),
                 ),
               ),
             ),
-            GestureDetector(
-              onTap: submit,
-              child: Container(
-                height: 50,
-                width: 350,
-                decoration: BoxDecoration(
-                    color: Colors.blue,
-                    borderRadius: BorderRadius.circular(7.0)),
-                child: Center(
-                  child: Text(
-                    "Submit",
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 15.0,
-                        fontWeight: FontWeight.bold),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: Container(
+                    height: 50,
+                    width: 100,
+                    decoration: BoxDecoration(
+                        color: Colors.red[400],
+                        borderRadius: BorderRadius.circular(10)),
+                    child: Center(
+                      child: Text(
+                        "Cancel",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 15.0,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            GestureDetector(
-              onTap: () {
-                Navigator.pop(context);
-              },
-              child: Container(
-                height: 50,
-                width: 350,
-                decoration: BoxDecoration(
-                    color: Colors.red[400],
-                    borderRadius: BorderRadius.circular(7.0)),
-                child: Center(
-                  child: Text(
-                    "Cancel",
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 15.0,
-                        fontWeight: FontWeight.bold),
+                SizedBox(
+                  width: 50,
+                ),
+                GestureDetector(
+                  onTap: submit,
+                  child: Container(
+                    height: 50,
+                    width: 100,
+                    decoration: BoxDecoration(
+                      color: Colors.blue,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Center(
+                      child: Text(
+                        "Submit",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 15.0,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            )
+              ],
+            ),
           ]),
         )
       ],
