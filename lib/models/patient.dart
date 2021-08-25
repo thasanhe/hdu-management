@@ -2,20 +2,22 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hdu_management/models/gender.dart';
 
 class Patient {
+  String? id;
   String? nic;
   String name;
   int? age;
-  DateTime? dateOfBirth;
+  DateTime? dateOfAdmission;
   String? contactNumber;
   Gender gender;
 
   int bhtNumber;
 
   Patient(
-      {this.nic,
+      {this.id,
+      this.nic,
       required this.name,
       this.age,
-      this.dateOfBirth,
+      this.dateOfAdmission,
       this.contactNumber,
       required this.bhtNumber,
       required this.gender});
