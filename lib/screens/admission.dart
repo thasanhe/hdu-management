@@ -237,8 +237,6 @@ class _AdmissionPageState extends State<Admission> {
                           return null;
                         },
                         onTap: onTapDatePickerPCR,
-                        // onSaved: (input) =>
-                        //     {symptomsDate = DateTime.parse(input!)},
                         decoration: getInputDecoration("PCR/RAT Date"),
                       ),
                       SizedBox(
