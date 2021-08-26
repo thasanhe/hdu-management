@@ -63,25 +63,34 @@ class _AdmissionPageState extends State<Admission> {
         contactNumber: this.contactNumber,
       );
       String alertTitle = 'Patient successfully admitted!';
+      String alertContent = '';
       try {
         print("Before create");
         await patientService.createPatient(patient);
         formState.reset();
       } catch (error) {
-        alertTitle = error.toString();
+        alertTitle = 'Error!';
+        if (error.toString() == 'Patient already admitted!') {
+          alertContent =
+              'Patient with the same bht already exists in the system. Check the bht and try again';
+        }
       }
       showDialog(
           context: context,
           builder: (context) {
             return AlertDialog(
               title: Text(alertTitle),
+              content: Text(alertContent),
               actions: [
                 TextButton(
                     onPressed: () {
-                      Navigator.popUntil(context, (route) => route.isFirst);
+                      alertTitle == 'Error!'
+                          ? Navigator.pop(context)
+                          : Navigator.popUntil(
+                              context, (route) => route.isFirst);
                       // Navigator.pop(context);
                     },
-                    child: Text('ok'))
+                    child: Text('OK'))
               ],
             );
           });
@@ -221,8 +230,6 @@ class _AdmissionPageState extends State<Admission> {
                           return null;
                         },
                         onTap: onTapDatePickerSymptoms,
-                        // onSaved: (input) =>
-                        //     {symptomsDate = DateTime.parse(input!)},
                         decoration: getInputDecoration("Symptoms stated date"),
                       ),
                       SizedBox(

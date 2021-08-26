@@ -9,6 +9,8 @@ import 'package:hdu_management/utils/utils.dart';
 import 'package:hdu_management/widgets/progress.dart';
 
 class PatientSearch extends StatefulWidget {
+  String? searchQuery;
+  PatientSearch({required this.searchQuery});
   @override
   _PatientSearchState createState() => _PatientSearchState();
 }
@@ -16,6 +18,7 @@ class PatientSearch extends StatefulWidget {
 class _PatientSearchState extends State<PatientSearch> {
   late PatientService patientService;
   List<Patient>? patientsList;
+  List<Patient>? patientsForList;
   bool isPatientFeched = false;
 
   @override
@@ -24,17 +27,30 @@ class _PatientSearchState extends State<PatientSearch> {
     fetchAllPatients();
   }
 
+  filterPatients(String? query) {
+    if (query != null) {
+      patientsForList = patientsList!
+          .where((element) =>
+              element.name
+                  .toString()
+                  .toLowerCase()
+                  .contains(query.toLowerCase()) ||
+              element.bedNumber.toString().contains(query))
+          .toList();
+    }
+  }
+
   fetchAllPatients() async {
     patientService = PatientService();
     this.isPatientFeched = false;
     this.patientsList = await patientService.getAllPatients();
+    this.patientsForList = patientsList;
     setState(() {
       this.isPatientFeched = true;
     });
   }
 
   getSubtitle(Patient patient) {
-    final gender = patient.gender == Gender.male ? 'male' : 'female';
     final admitionDate =
         '${patient.dateOfAdmissionHDU!.day}/${patient.dateOfAdmissionHDU!.month}/${patient.dateOfAdmissionHDU!.year}';
 
@@ -60,9 +76,13 @@ class _PatientSearchState extends State<PatientSearch> {
     List<Widget> buildListItems() {
       List<Widget> listItems = [];
 
-      this.patientsList!.forEach((patient) {
-        Card lt = Card(
-          elevation: 5,
+      if (widget.searchQuery != null) {
+        filterPatients(widget.searchQuery);
+      }
+
+      this.patientsForList!.forEach((patient) {
+        Card ptCard = Card(
+          elevation: 0,
           child: ListTile(
             leading: CircleAvatar(
               child: patient.bedNumber != null
@@ -70,22 +90,23 @@ class _PatientSearchState extends State<PatientSearch> {
                   : Text('N/A'),
             ),
             trailing: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Container(
                   padding:
                       EdgeInsets.only(left: 5, right: 5, top: 2, bottom: 2),
                   decoration: BoxDecoration(
-                      // color: Colors.orange[400],
                       color: getColorsByStatus(patient.currentStatus),
                       borderRadius: BorderRadius.circular(8)),
-                  child: Text(
-                    Utils.patientStatusToString(patient.currentStatus)
-                        .toUpperCase(),
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.white,
+                  child: Container(
+                    child: Text(
+                      Utils.patientStatusToString(patient.currentStatus)
+                          .toUpperCase(),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ),
@@ -120,23 +141,24 @@ class _PatientSearchState extends State<PatientSearch> {
 
         Container cont = Container(
           height: 85,
-          child: lt,
+          child: ptCard,
         );
 
-        TextButton tb = TextButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => PatientProfile(
-                    patient: patient,
-                  ),
+        GestureDetector gd = GestureDetector(
+          child: cont,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => PatientProfile(
+                  patient: patient,
                 ),
-              );
-            },
-            child: cont);
+              ),
+            );
+          },
+        );
 
-        listItems.add(tb);
+        listItems.add(gd);
       });
 
       return listItems;

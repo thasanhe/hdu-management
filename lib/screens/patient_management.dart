@@ -11,7 +11,7 @@ class _PatientManagementState extends State<PatientManagement> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: Text('Patient management'),
+      child: Text('Patient  : version 0.0.0.b.15'),
     );
   }
 }

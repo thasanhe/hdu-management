@@ -4,7 +4,6 @@ import 'package:hdu_management/screens/admission.dart';
 import 'package:hdu_management/screens/duty_roster.dart';
 import 'package:hdu_management/screens/patient_management.dart';
 import 'package:hdu_management/screens/patient_search.dart';
-import 'package:hdu_management/screens/ward_round.dart';
 import 'package:hdu_management/widgets/main_drawer.dart';
 
 class HomePage extends StatefulWidget {
@@ -16,9 +15,9 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final searchController = TextEditingController();
-  bool isSearchTapped = false;
   bool isTyping = false;
   late int _pageNumber;
+  String? searchQuery;
 
   late PageController _pageController;
 
@@ -41,20 +40,11 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  onSearchTap() {
-    setState(() {
-      this.isSearchTapped = true;
-      print('search tapped');
-    });
-  }
-
   clearSearch() {
     setState(() {
-      print('tapped');
-      this.isSearchTapped = false;
       this.isTyping = false;
+      searchQuery = '';
       searchController.clear();
-      print(isSearchTapped);
     });
   }
 
@@ -65,47 +55,66 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  handleSearch(String query) {}
+  updateSearch(String? searchQuery) {
+    setState(() {
+      this.searchQuery = searchQuery;
+      this.isTyping = searchController.text.isNotEmpty;
+    });
+  }
 
-  AppBar buildSearchBar() {
+  AppBar buildSearchBar(Function(String) searchFunction) {
     return AppBar(
-      title: Container(
-        padding: EdgeInsets.only(
-          right: 40,
-        ),
-        child: TextFormField(
-          onTap: onSearchTap,
-          onChanged: onChanged,
-          style: TextStyle(color: Colors.white),
-          controller: searchController,
-          decoration: InputDecoration(
-            isDense: true,
-            border:
-                OutlineInputBorder(borderRadius: BorderRadius.circular(32.0)),
-            hintText: 'Search patient',
-            filled: true,
-            fillColor: Colors.blue.shade400,
-            suffixIcon: isTyping
-                ? IconButton(
-                    icon: Icon(Icons.clear),
-                    color: Colors.white,
-                    onPressed: clearSearch,
-                    padding: EdgeInsets.only(right: 20),
-                  )
-                : IconButton(
-                    icon: Icon(Icons.search),
-                    color: Colors.white,
-                    padding: EdgeInsets.only(right: 20),
-                    onPressed: () {},
-                  ),
-            hintStyle: TextStyle(
-              color: Colors.white,
+      title: Center(
+        child: Container(
+          // padding: EdgeInsets.only(
+          //   // right: 40,
+          //   top: 10,
+          // ),
+          child: TextFormField(
+            onChanged: searchFunction,
+            style: TextStyle(color: Colors.white),
+            controller: searchController,
+            decoration: InputDecoration(
+              contentPadding: EdgeInsets.only(bottom: 0),
+              isDense: true,
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(32.0),
+                  borderSide: BorderSide.none),
+              hintText: 'Search patients',
+              filled: true,
+              fillColor: Colors.blue.shade400,
+              suffixIcon: isTyping
+                  ? IconButton(
+                      icon: Icon(Icons.clear),
+                      color: Colors.white,
+                      onPressed: clearSearch,
+                      padding: EdgeInsets.only(right: 20),
+                    )
+                  : IconButton(
+                      icon: Icon(Icons.search),
+                      color: Colors.white,
+                      padding: EdgeInsets.only(right: 20),
+                      onPressed: () {},
+                    ),
+              hintStyle: TextStyle(
+                color: Colors.white,
+              ),
             ),
+            textAlign: TextAlign.center,
           ),
-          textAlign: TextAlign.center,
-          onFieldSubmitted: handleSearch,
         ),
       ),
+      bottom: PreferredSize(
+        child: Container(),
+        preferredSize: Size.square(10),
+      ),
+      actions: [
+        IconButton(
+          onPressed: () {},
+          icon: Icon(Icons.filter_list),
+          padding: EdgeInsets.only(right: 20, left: 20),
+        )
+      ],
     );
   }
 
@@ -117,30 +126,29 @@ class _HomePageState extends State<HomePage> {
 
   final _pageTitles = [
     'Patient Search',
-    // 'Admissions',
-    // 'Ward Round',
     'Patient Management',
-    'Duty Roster'
+    'Duty Roster',
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _pageNumber == 0
-          ? buildSearchBar()
+          ? buildSearchBar(updateSearch)
           : buildAppBar(_pageTitles[_pageNumber]),
       drawer: AppDrawer(pageController: _pageController),
-      body: PageView(
-        children: [
-          PatientSearch(),
-          // Admission(),
-          // WardRound(),
-          PatientManagement(),
-          DutyRoster(),
-        ],
-        controller: _pageController,
-        physics: NeverScrollableScrollPhysics(),
-        onPageChanged: onPageChange,
+      body: Container(
+        color: Colors.grey[200],
+        child: PageView(
+          children: [
+            PatientSearch(searchQuery: searchQuery),
+            PatientManagement(),
+            DutyRoster(),
+          ],
+          controller: _pageController,
+          physics: NeverScrollableScrollPhysics(),
+          onPageChanged: onPageChange,
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -148,16 +156,6 @@ class _HomePageState extends State<HomePage> {
               context: context,
               builder: (context) {
                 return Scaffold(body: Admission());
-                // return AlertDialog(
-                //   title: Text('Admit patient'),
-                //   actions: [
-                //     TextButton(
-                //         onPressed: () {
-                //           Navigator.pop(context);
-                //         },
-                //         child: Text('ok'))
-                //   ],
-                // );
               });
         },
         child: Icon(Icons.add),

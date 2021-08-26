@@ -1,12 +1,22 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class DutyRoster extends StatelessWidget {
   const DutyRoster({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Text('Duty roster'),
+    return Row(
+      children: [
+        Text('Call Priyanwada'),
+        TextButton(
+          onPressed: () => launch('tel://0715864325'),
+          child: Icon(Icons.call),
+        ),
+      ],
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
     );
   }
 }

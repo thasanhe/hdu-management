@@ -8,7 +8,7 @@ class PatientService {
 
   Future<List<Patient>> getAllPatients() async {
     List<Patient> patientList = [];
-    final querySnapshot = await patientsRef.get();
+    final querySnapshot = await patientsRef.orderBy('bedNumber').get();
     querySnapshot.docs.forEach((doc) {
       patientList.add(Patient.fromDocument(doc));
     });
@@ -36,7 +36,7 @@ class PatientService {
         "dateOfLama": patient.dateOfLama,
         "dateOfDeath": patient.dateOfDeath,
         "bhtNumber": patient.bhtNumber,
-        "bedNumber": patient.bedNumber,
+        "bedNumber": patient.bedNumber != null ? patient.bedNumber : 100000,
         "history": patient.history,
         "symptoms": patient.symptoms,
       });

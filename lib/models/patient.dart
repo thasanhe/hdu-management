@@ -74,7 +74,7 @@ class Patient {
       pcrRatDate: pcrRatDate.toDate(),
       currentStatus: Utils.patientStatusFromString(doc['currentStatus']),
       dateOfAdmissionHDU: dateOfAdmissionHDU.toDate(),
-      bedNumber: doc['bedNumber'],
+      bedNumber: doc['bedNumber'] != 100000 ? doc['bedNumber'] : null,
     );
 
     return p;
