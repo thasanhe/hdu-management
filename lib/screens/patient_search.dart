@@ -39,7 +39,7 @@ class _PatientSearchState extends State<PatientSearch> {
         '${patient.dateOfAdmissionHDU!.day}/${patient.dateOfAdmissionHDU!.month}/${patient.dateOfAdmissionHDU!.year}';
 
     return Text(
-      'DOA: $admitionDate   $gender   ${patient.age}y',
+      'DOA: $admitionDate',
       style: TextStyle(fontSize: 12),
     );
   }
