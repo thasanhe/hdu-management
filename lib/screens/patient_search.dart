@@ -10,7 +10,8 @@ import 'package:hdu_management/widgets/progress.dart';
 
 class PatientSearch extends StatefulWidget {
   String? searchQuery;
-  PatientSearch({required this.searchQuery});
+  List<int?>? occupiedBeds;
+  PatientSearch({required this.searchQuery, required this.occupiedBeds});
   @override
   _PatientSearchState createState() => _PatientSearchState();
 }
@@ -45,6 +46,7 @@ class _PatientSearchState extends State<PatientSearch> {
     this.isPatientFeched = false;
     this.patientsList = await patientService.getAllPatients();
     this.patientsForList = patientsList;
+    widget.occupiedBeds = patientsList!.map((pt) => pt.bedNumber).toList();
     setState(() {
       this.isPatientFeched = true;
     });

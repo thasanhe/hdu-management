@@ -130,6 +130,10 @@ class _HomePageState extends State<HomePage> {
     'Duty Roster',
   ];
 
+  List<int?>? occupiedBeds;
+
+  void getOccupiedBeds(occupiedBeds) {}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -141,7 +145,10 @@ class _HomePageState extends State<HomePage> {
         color: Colors.grey[200],
         child: PageView(
           children: [
-            PatientSearch(searchQuery: searchQuery),
+            PatientSearch(
+              searchQuery: searchQuery,
+              occupiedBeds: occupiedBeds,
+            ),
             PatientManagement(),
             DutyRoster(),
           ],
@@ -155,7 +162,7 @@ class _HomePageState extends State<HomePage> {
           showDialog(
               context: context,
               builder: (context) {
-                return Scaffold(body: Admission());
+                return Scaffold(body: Admission(occupiedBeds: occupiedBeds));
               });
         },
         child: Icon(Icons.add),
