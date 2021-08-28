@@ -11,10 +11,10 @@ import 'package:textfield_tags/textfield_tags.dart';
 
 class Admission extends StatefulWidget {
   final List<int?>? occupiedBeds;
-  const Admission({
-    Key? key,
-    required this.occupiedBeds,
-  }) : super(key: key);
+  final VoidCallback onRefresh;
+  const Admission(
+      {Key? key, required this.occupiedBeds, required this.onRefresh})
+      : super(key: key);
 
   @override
   _AdmissionPageState createState() => _AdmissionPageState();
@@ -106,9 +106,12 @@ class _AdmissionPageState extends State<Admission> {
             actions: [
               TextButton(
                   onPressed: () {
-                    alertTitle == 'Error!'
-                        ? Navigator.pop(context)
-                        : Navigator.popUntil(context, (route) => route.isFirst);
+                    if (alertTitle == 'Error!') {
+                      Navigator.pop(context);
+                    }
+
+                    Navigator.popUntil(context, (route) => route.isFirst);
+                    widget.onRefresh();
                   },
                   child: Text('OK'))
             ],

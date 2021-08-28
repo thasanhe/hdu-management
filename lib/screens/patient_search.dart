@@ -179,7 +179,6 @@ class _PatientSearchState extends State<PatientSearch> {
                   fetchAllPatients();
                   print("Refreshing the list");
                   return Future.value('');
-                  // return patientService.getPatients();
                 },
               ),
       ),
@@ -188,7 +187,10 @@ class _PatientSearchState extends State<PatientSearch> {
           showDialog(
               context: context,
               builder: (context) {
-                return Scaffold(body: Admission(occupiedBeds: occupiedBeds));
+                return Scaffold(
+                    body: Admission(
+                        occupiedBeds: occupiedBeds,
+                        onRefresh: fetchAllPatients));
               });
         },
         child: Icon(Icons.add),
