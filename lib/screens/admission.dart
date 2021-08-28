@@ -5,7 +5,6 @@ import 'package:hdu_management/models/gender.dart';
 import 'package:hdu_management/models/patient.dart';
 import 'package:hdu_management/models/patient_status.dart';
 import 'package:hdu_management/services/patient_service.dart';
-import 'package:hdu_management/utils/date_picker.dart' as DatePicker;
 
 class Admission extends StatefulWidget {
   final List<int?>? occupiedBeds;
@@ -115,7 +114,7 @@ class _AdmissionPageState extends State<Admission> {
 
   onTapDatePickerSymptoms() async {
     try {
-      this.symptomsDate = await DatePicker.showDatePicker(
+      this.symptomsDate = await showDatePicker(
         context: context,
         initialDate: DateTime.now(),
         firstDate: DateTime.now().subtract(Duration(days: 30)),
@@ -130,7 +129,7 @@ class _AdmissionPageState extends State<Admission> {
 
   onTapDatePickerPCR() async {
     try {
-      this.pcrRatDate = await DatePicker.showDatePicker(
+      this.pcrRatDate = await showDatePicker(
         context: context,
         initialDate: DateTime.now(),
         firstDate: DateTime.now().subtract(Duration(days: 30)),
@@ -312,7 +311,6 @@ class _AdmissionPageState extends State<Admission> {
                         },
                         onTap: onTapDatePickerSymptoms,
                         decoration: getInputDecoration("Symptoms stated date"),
-                        readOnly: true,
                       ),
                       SizedBox(
                         height: 15,
@@ -327,7 +325,6 @@ class _AdmissionPageState extends State<Admission> {
                         },
                         onTap: onTapDatePickerPCR,
                         decoration: getInputDecoration("PCR/RAT Date"),
-                        readOnly: true,
                       ),
                       SizedBox(
                         height: 15,
