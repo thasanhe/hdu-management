@@ -144,15 +144,14 @@ class _AdmissionPageState extends State<Admission> {
     }
   }
 
-  getBedContainer(int number, isAvailable) {
+  Container getBedItem(int number, isAvailable) {
     return Container(
-      width: 30,
+      width: 50,
+      height: 30,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
         color: isAvailable ? Colors.blue[400] : Colors.grey,
-        // shape: BoxShape.circle,
       ),
-      // color: Colors.amber,
       child: TextButton(
         onPressed: isAvailable
             ? () {
@@ -168,37 +167,34 @@ class _AdmissionPageState extends State<Admission> {
     );
   }
 
-  List<Widget> getBedContainers() {
+  List<Row> getBedRows() {
     final bedCount = 20;
-    final columnCount = 5;
-    List<Widget> bedContainers = [];
+    final columnCount = 4;
+    List<Row> bedRows = [];
 
-    List<Widget> rowElements = [];
+    List<Container> rowElements = [];
     print("Get beds");
     print(widget.occupiedBeds);
 
     for (var i = 1; i <= bedCount; ++i) {
-      rowElements.add(getBedContainer(
+      rowElements.add(getBedItem(
           i,
           widget.occupiedBeds == null
               ? false
               : !widget.occupiedBeds!.contains(i)));
-      rowElements.add(SizedBox(
-        width: 10,
-      ));
       if (i % columnCount == 0) {
-        bedContainers.add(Row(children: rowElements));
-        bedContainers.add(SizedBox(
-          height: 10,
+        bedRows.add(Row(
+          children: rowElements,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         ));
         rowElements = [];
       }
     }
 
-    return bedContainers;
+    return bedRows;
   }
 
-  getBeds() {
+  getBedPicker() {
     return showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -209,13 +205,12 @@ class _AdmissionPageState extends State<Admission> {
         ),
         title: Text('Please select a bed'),
         content: Container(
-          alignment: Alignment.center,
-          height: 180,
-          width: 100,
+          // alignment: Alignment.center,
+          height: 200,
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             crossAxisAlignment: CrossAxisAlignment.center,
-            children: getBedContainers(),
+            children: getBedRows(),
           ),
         ),
       ),
@@ -286,7 +281,7 @@ class _AdmissionPageState extends State<Admission> {
                       TextFormField(
                         readOnly: true,
                         controller: _bedInputController,
-                        onTap: getBeds,
+                        onTap: getBedPicker,
                         onSaved: (input) => {bedNumber = int.parse(input!)},
                         decoration: getInputDecoration("Bed Number"),
                         keyboardType: TextInputType.number,
