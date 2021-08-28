@@ -16,12 +16,16 @@ class OnAdmissionStatus {
   });
 
   factory OnAdmissionStatus.fromDocument(DocumentSnapshot doc) {
-    return OnAdmissionStatus(
+    OnAdmissionStatus temp = OnAdmissionStatus(
       bhtNumber: doc['bhtNumber'],
       alergies: doc['alergies'],
       coMobidities: doc['co_mobidities'],
       surgicalHistory: doc['surgical_history'],
       symptoms: doc['symptoms'],
     );
+    print("Temp");
+    print(temp);
+
+    return temp;
   }
 }

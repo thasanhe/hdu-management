@@ -41,6 +41,9 @@ class _AdmissionPageState extends State<Admission> {
   late PatientService patientService;
 
   List<String> symptomsList = [];
+  List<String> coMobList = [];
+  List<String> surgHistList = [];
+  List<String> alergiesList = [];
 
   @override
   initState() {
@@ -75,14 +78,18 @@ class _AdmissionPageState extends State<Admission> {
       );
 
       OnAdmissionStatus status = OnAdmissionStatus(
-          bhtNumber: double.parse(this.bht!), symptoms: this.symptomsList);
+        bhtNumber: double.parse(this.bht!),
+        symptoms: this.symptomsList,
+        coMobidities: this.coMobList,
+        alergies: this.alergiesList,
+        surgicalHistory: this.surgHistList,
+      );
       String alertTitle = 'Patient successfully admitted!';
       String alertContent = '';
       try {
         print("Before create");
-        await patientService
-            .createPatientOnAdmissionStatus(status)
-            .then((value) => patientService.createPatient(patient));
+        await patientService.createPatientOnAdmissionStatus(status);
+        await patientService.createPatient(patient);
         formState.reset();
       } catch (error) {
         alertTitle = 'Error!';
@@ -237,6 +244,39 @@ class _AdmissionPageState extends State<Admission> {
     );
   }
 
+  getTextFieldwithTags(
+      String helperText, String hintText, List<String> tagsCollector) {
+    return TextFieldTags(
+      textSeparators: [',', '.', ' ', '\n'],
+      tagsStyler: TagsStyler(
+        tagTextStyle: TextStyle(color: Colors.white),
+        tagDecoration: BoxDecoration(
+          color: const Color.fromARGB(255, 171, 81, 81),
+          borderRadius: BorderRadius.circular(8.0),
+        ),
+        tagCancelIcon: Icon(Icons.cancel,
+            size: 16.0, color: Color.fromARGB(255, 235, 214, 214)),
+        tagPadding: const EdgeInsets.all(10.0),
+      ),
+      textFieldStyler: TextFieldStyler(
+        helperText: helperText,
+        // helperText: '',
+        hintText: hintText,
+        textFieldBorder:
+            OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+        isDense: true,
+      ),
+      onTag: (tag) {
+        tagsCollector.add(tag);
+        print(tagsCollector);
+      },
+      onDelete: (tag) {
+        tagsCollector.remove(tag);
+        print(tagsCollector);
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext parentContext) {
     return ListView(
@@ -338,38 +378,8 @@ class _AdmissionPageState extends State<Admission> {
                       SizedBox(
                         height: 15,
                       ),
-                      Container(
-                        child: TextFieldTags(
-                          textSeparators: [',', '.', ' ', '\n'],
-                          tagsStyler: TagsStyler(
-                            tagTextStyle: TextStyle(color: Colors.white),
-                            tagDecoration: BoxDecoration(
-                              color: const Color.fromARGB(255, 171, 81, 81),
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
-                            tagCancelIcon: Icon(Icons.cancel,
-                                size: 16.0,
-                                color: Color.fromARGB(255, 235, 214, 214)),
-                            tagPadding: const EdgeInsets.all(10.0),
-                          ),
-                          textFieldStyler: TextFieldStyler(
-                            helperText: 'Add Symptoms seperated by space',
-                            // helperText: '',
-                            hintText: 'Add Symptoms',
-                            textFieldBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10)),
-                            isDense: true,
-                          ),
-                          onTag: (tag) {
-                            symptomsList.add(tag);
-                            print(symptomsList);
-                          },
-                          onDelete: (tag) {
-                            symptomsList.remove(tag);
-                            print(symptomsList);
-                          },
-                        ),
-                      ),
+                      getTextFieldwithTags('Add Symptoms seperated by space',
+                          'Add Symptoms', symptomsList),
                       SizedBox(
                         height: 15,
                       ),
@@ -387,9 +397,22 @@ class _AdmissionPageState extends State<Admission> {
                       SizedBox(
                         height: 15,
                       ),
+                      getTextFieldwithTags(
+                          'Add co-mobidities seperated by space',
+                          'Add Co-Mobidities',
+                          coMobList),
                       SizedBox(
                         height: 15,
                       ),
+                      getTextFieldwithTags(
+                          'Add surgical history seperated by space',
+                          'Add Surgical History',
+                          surgHistList),
+                      SizedBox(
+                        height: 15,
+                      ),
+                      getTextFieldwithTags('Add alergies seperated by space',
+                          'Add Alergies', alergiesList),
                     ],
                   ),
                 ),
