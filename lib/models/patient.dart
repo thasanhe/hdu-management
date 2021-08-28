@@ -29,10 +29,6 @@ class Patient {
   double? bhtNumber;
   int? bedNumber;
 
-  String? history;
-  String? symptoms;
-  String? alergies;
-
   Patient({
     required this.name,
     required this.age,
@@ -51,8 +47,6 @@ class Patient {
     this.dateOfDeath,
     this.bhtNumber,
     this.bedNumber,
-    this.history,
-    this.symptoms,
   });
 
   //rotine data

@@ -32,7 +32,7 @@ class PatientService {
   Future<String> createPatient(Patient patient) async {
     DocumentSnapshot pt = await patientsRef.doc(patient.id).get();
     if (!pt.exists) {
-      patientsRef.doc(patient.bhtNumber.toString()).set({
+      await patientsRef.doc(patient.bhtNumber.toString()).set({
         "name": patient.name,
         "gender": patient.gender == Gender.male ? 'male' : 'female',
         "id": patient.bhtNumber,
@@ -50,13 +50,11 @@ class PatientService {
         "dateOfDeath": patient.dateOfDeath,
         "bhtNumber": patient.bhtNumber,
         "bedNumber": patient.bedNumber != null ? patient.bedNumber : 100000,
-        "history": patient.history,
-        "symptoms": patient.symptoms,
       });
-      print('Created patient');
 
       pt = await patientsRef.doc(patient.id).get();
       Patient savedPt = Patient.fromDocument(pt);
+      print('Created patient');
       return Future.value(savedPt.name);
     }
     return Future.error('Patient already admitted!');
@@ -64,7 +62,7 @@ class PatientService {
 
   Future<String> createPatientOnAdmissionStatus(
       OnAdmissionStatus onAdmissionStatus) async {
-    onAdmissionStatusRef.doc(onAdmissionStatus.bhtNumber.toString()).set({
+    await onAdmissionStatusRef.doc(onAdmissionStatus.bhtNumber.toString()).set({
       "bhtNumber": onAdmissionStatus.bhtNumber,
       "alergies": onAdmissionStatus.alergies,
       "co_mobidities": onAdmissionStatus.coMobidities,
@@ -72,12 +70,11 @@ class PatientService {
       "symptoms": onAdmissionStatus.symptoms,
     });
 
-    print('Created on admission status');
-
     final status = await onAdmissionStatusRef
         .doc(onAdmissionStatus.bhtNumber.toString())
         .get();
     OnAdmissionStatus savedStatus = OnAdmissionStatus.fromDocument(status);
+    print('Created on admission status');
     return Future.value(savedStatus.bhtNumber.toString());
   }
 }

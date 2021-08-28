@@ -12,7 +12,10 @@ class PatientProfile extends StatelessWidget {
       length: 3,
       child: Scaffold(
         appBar: AppBar(
-          title: Text(patient.name + " : " + patient.bhtNumber.toString()),
+          title: Text(
+            patient.name + " Bed No: " + patient.bhtNumber.toString(),
+            textAlign: TextAlign.center,
+          ),
           bottom: TabBar(
             labelPadding: EdgeInsets.all(0),
             tabs: [
@@ -21,7 +24,7 @@ class PatientProfile extends StatelessWidget {
                   // color: Colors.red,
                   child: Center(
                     child: Text(
-                      'History',
+                      'Profile',
                       style: TextStyle(color: Colors.white),
                     ),
                   ),

@@ -70,8 +70,6 @@ class _AdmissionPageState extends State<Admission> {
         pcrRatDate: this.pcrRatDate!,
         bedNumber: this.bedNumber,
         age: this.age!,
-        symptoms: this.symptoms,
-        history: this.history,
         nic: this.nic,
         dateOfAdmissionHospital: this.dateOfAdmissionHospital,
         contactNumber: this.contactNumber,
