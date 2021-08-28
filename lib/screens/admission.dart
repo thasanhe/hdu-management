@@ -93,7 +93,6 @@ class _AdmissionPageState extends State<Admission> {
                     alertTitle == 'Error!'
                         ? Navigator.pop(context)
                         : Navigator.popUntil(context, (route) => route.isFirst);
-                    // Navigator.pop(context);
                   },
                   child: Text('OK'))
             ],
@@ -205,7 +204,6 @@ class _AdmissionPageState extends State<Admission> {
         ),
         title: Text('Please select a bed'),
         content: Container(
-          // alignment: Alignment.center,
           height: 200,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,

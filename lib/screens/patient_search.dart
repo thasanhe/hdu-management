@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:hdu_management/models/gender.dart';
 import 'package:hdu_management/models/patient.dart';
 import 'package:hdu_management/models/patient_status.dart';
+import 'package:hdu_management/screens/admission.dart';
 import 'package:hdu_management/screens/patient_profile.dart';
 import 'package:hdu_management/services/patient_service.dart';
 import 'package:hdu_management/utils/utils.dart';
@@ -10,8 +11,7 @@ import 'package:hdu_management/widgets/progress.dart';
 
 class PatientSearch extends StatefulWidget {
   String? searchQuery;
-  List<int?>? occupiedBeds;
-  PatientSearch({required this.searchQuery, required this.occupiedBeds});
+  PatientSearch({required this.searchQuery});
   @override
   _PatientSearchState createState() => _PatientSearchState();
 }
@@ -21,6 +21,7 @@ class _PatientSearchState extends State<PatientSearch> {
   List<Patient>? patientsList;
   List<Patient>? patientsForList;
   bool isPatientFeched = false;
+  List<int?> occupiedBeds = [];
 
   @override
   void initState() {
@@ -46,7 +47,7 @@ class _PatientSearchState extends State<PatientSearch> {
     this.isPatientFeched = false;
     this.patientsList = await patientService.getAllPatients();
     this.patientsForList = patientsList;
-    widget.occupiedBeds = patientsList!.map((pt) => pt.bedNumber).toList();
+    occupiedBeds = patientsList!.map((pt) => pt.bedNumber).toList();
     setState(() {
       this.isPatientFeched = true;
     });
@@ -166,20 +167,32 @@ class _PatientSearchState extends State<PatientSearch> {
       return listItems;
     }
 
-    return Container(
-      child: !isPatientFeched
-          ? circularProgress()
-          : RefreshIndicator(
-              child: ListView(
-                children: buildListItems(),
+    return Scaffold(
+      body: Container(
+        child: !isPatientFeched
+            ? circularProgress()
+            : RefreshIndicator(
+                child: ListView(
+                  children: buildListItems(),
+                ),
+                onRefresh: () {
+                  fetchAllPatients();
+                  print("Refreshing the list");
+                  return Future.value('');
+                  // return patientService.getPatients();
+                },
               ),
-              onRefresh: () {
-                fetchAllPatients();
-                print("Refreshing the list");
-                return Future.value('');
-                // return patientService.getPatients();
-              },
-            ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          showDialog(
+              context: context,
+              builder: (context) {
+                return Scaffold(body: Admission(occupiedBeds: occupiedBeds));
+              });
+        },
+        child: Icon(Icons.add),
+      ),
     );
   }
 }

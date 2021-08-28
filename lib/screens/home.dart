@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:hdu_management/screens/admission.dart';
 import 'package:hdu_management/screens/duty_roster.dart';
 import 'package:hdu_management/screens/patient_management.dart';
 import 'package:hdu_management/screens/patient_search.dart';
@@ -66,10 +65,6 @@ class _HomePageState extends State<HomePage> {
     return AppBar(
       title: Center(
         child: Container(
-          // padding: EdgeInsets.only(
-          //   // right: 40,
-          //   top: 10,
-          // ),
           child: TextFormField(
             onChanged: searchFunction,
             style: TextStyle(color: Colors.white),
@@ -130,10 +125,6 @@ class _HomePageState extends State<HomePage> {
     'Duty Roster',
   ];
 
-  List<int?>? occupiedBeds;
-
-  void getOccupiedBeds(occupiedBeds) {}
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -147,7 +138,6 @@ class _HomePageState extends State<HomePage> {
           children: [
             PatientSearch(
               searchQuery: searchQuery,
-              occupiedBeds: occupiedBeds,
             ),
             PatientManagement(),
             DutyRoster(),
@@ -156,16 +146,6 @@ class _HomePageState extends State<HomePage> {
           physics: NeverScrollableScrollPhysics(),
           onPageChanged: onPageChange,
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          showDialog(
-              context: context,
-              builder: (context) {
-                return Scaffold(body: Admission(occupiedBeds: occupiedBeds));
-              });
-        },
-        child: Icon(Icons.add),
       ),
     );
   }
