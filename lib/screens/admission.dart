@@ -2,9 +2,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:hdu_management/models/gender.dart';
+import 'package:hdu_management/models/on_admission_status.dart';
 import 'package:hdu_management/models/patient.dart';
 import 'package:hdu_management/models/patient_status.dart';
 import 'package:hdu_management/services/patient_service.dart';
+
+import 'package:textfield_tags/textfield_tags.dart';
 
 class Admission extends StatefulWidget {
   final List<int?>? occupiedBeds;
@@ -37,6 +40,8 @@ class _AdmissionPageState extends State<Admission> {
   String? contactNumber;
   late PatientService patientService;
 
+  List<String> symptomsList = [];
+
   @override
   initState() {
     super.initState();
@@ -68,14 +73,20 @@ class _AdmissionPageState extends State<Admission> {
         dateOfAdmissionHospital: this.dateOfAdmissionHospital,
         contactNumber: this.contactNumber,
       );
+
+      OnAdmissionStatus status = OnAdmissionStatus(
+          bhtNumber: double.parse(this.bht!), symptoms: this.symptomsList);
       String alertTitle = 'Patient successfully admitted!';
       String alertContent = '';
       try {
         print("Before create");
-        await patientService.createPatient(patient);
+        await patientService
+            .createPatientOnAdmissionStatus(status)
+            .then((value) => patientService.createPatient(patient));
         formState.reset();
       } catch (error) {
         alertTitle = 'Error!';
+        print(error);
         if (error.toString() == 'Patient already admitted!') {
           alertContent =
               'Patient with the same bht already exists in the system. Check the bht and try again';
@@ -109,6 +120,17 @@ class _AdmissionPageState extends State<Admission> {
       labelText: label,
       labelStyle: TextStyle(fontSize: 15.0),
       hintText: hint,
+    );
+  }
+
+  getInputDecorationCalendar(String label, {String? hint}) {
+    return InputDecoration(
+      isDense: true,
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+      labelText: label,
+      labelStyle: TextStyle(fontSize: 15.0),
+      hintText: hint,
+      prefixIcon: Icon(CupertinoIcons.calendar),
     );
   }
 
@@ -310,7 +332,43 @@ class _AdmissionPageState extends State<Admission> {
                           return null;
                         },
                         onTap: onTapDatePickerSymptoms,
-                        decoration: getInputDecoration("Symptoms stated date"),
+                        decoration:
+                            getInputDecorationCalendar("Symptoms stated date"),
+                      ),
+                      SizedBox(
+                        height: 15,
+                      ),
+                      Container(
+                        child: TextFieldTags(
+                          textSeparators: [',', '.', ' ', '\n'],
+                          tagsStyler: TagsStyler(
+                            tagTextStyle: TextStyle(color: Colors.white),
+                            tagDecoration: BoxDecoration(
+                              color: const Color.fromARGB(255, 171, 81, 81),
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            tagCancelIcon: Icon(Icons.cancel,
+                                size: 16.0,
+                                color: Color.fromARGB(255, 235, 214, 214)),
+                            tagPadding: const EdgeInsets.all(10.0),
+                          ),
+                          textFieldStyler: TextFieldStyler(
+                            helperText: 'Add Symptoms seperated by space',
+                            // helperText: '',
+                            hintText: 'Add Symptoms',
+                            textFieldBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10)),
+                            isDense: true,
+                          ),
+                          onTag: (tag) {
+                            symptomsList.add(tag);
+                            print(symptomsList);
+                          },
+                          onDelete: (tag) {
+                            symptomsList.remove(tag);
+                            print(symptomsList);
+                          },
+                        ),
                       ),
                       SizedBox(
                         height: 15,
@@ -324,7 +382,7 @@ class _AdmissionPageState extends State<Admission> {
                           return null;
                         },
                         onTap: onTapDatePickerPCR,
-                        decoration: getInputDecoration("PCR/RAT Date"),
+                        decoration: getInputDecorationCalendar("PCR/RAT Date"),
                       ),
                       SizedBox(
                         height: 15,

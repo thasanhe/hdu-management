@@ -31,6 +31,7 @@ class Patient {
 
   String? history;
   String? symptoms;
+  String? alergies;
 
   Patient({
     required this.name,
