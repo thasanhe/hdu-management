@@ -468,7 +468,10 @@ class _AdmissionPageState extends State<Admission> {
               ],
             ),
           ]),
-        )
+        ),
+        SizedBox(
+          height: 30,
+        ),
       ],
     );
   }
