@@ -19,14 +19,14 @@ class PatientService {
     return patientList;
   }
 
-  Future<List<OnAdmissionStatus>> onAdmissionStatusByPatient(
+  Future<OnAdmissionStatus?> getOnAdmissionStatusByPatient(
       double bhtNumber) async {
-    List<OnAdmissionStatus> statusList = [];
+    OnAdmissionStatus? status;
     final querySnapshot =
         await onAdmissionStatusRef.doc(bhtNumber.toString()).get();
-    OnAdmissionStatus.fromDocument(querySnapshot);
+    status = OnAdmissionStatus.fromDocument(querySnapshot);
     print('Retrieved on admission status');
-    return statusList;
+    return status;
   }
 
   Future<String> createPatient(Patient patient) async {

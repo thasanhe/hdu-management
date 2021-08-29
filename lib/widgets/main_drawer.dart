@@ -13,13 +13,14 @@ class AppDrawer extends StatelessWidget {
     List<Widget> widgetList = [];
 
     final button = Container(
-      color: Colors.blue,
+      // color: Colors.blue,
+      color: Color(0xffFBB97C),
       height: 55,
       alignment: Alignment.center,
       child: Text(
         'HDU Management',
         style: TextStyle(
-          fontWeight: FontWeight.w200,
+          fontWeight: FontWeight.w500,
           color: Colors.white,
           fontSize: 22,
         ),

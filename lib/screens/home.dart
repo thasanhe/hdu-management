@@ -63,42 +63,10 @@ class _HomePageState extends State<HomePage> {
 
   AppBar buildSearchBar(Function(String) searchFunction) {
     return AppBar(
-      title: Center(
-        child: Container(
-          child: TextFormField(
-            onChanged: searchFunction,
-            style: TextStyle(color: Colors.white),
-            controller: searchController,
-            decoration: InputDecoration(
-              contentPadding: EdgeInsets.only(bottom: 0),
-              isDense: true,
-              border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(32.0),
-                  borderSide: BorderSide.none),
-              hintText: 'Search patients',
-              filled: true,
-              fillColor: Colors.blue.shade400,
-              suffixIcon: isTyping
-                  ? IconButton(
-                      icon: Icon(Icons.clear),
-                      color: Colors.white,
-                      onPressed: clearSearch,
-                      padding: EdgeInsets.only(right: 20),
-                    )
-                  : IconButton(
-                      icon: Icon(Icons.search),
-                      color: Colors.white,
-                      padding: EdgeInsets.only(right: 20),
-                      onPressed: () {},
-                    ),
-              hintStyle: TextStyle(
-                color: Colors.white,
-              ),
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ),
-      ),
+      backgroundColor: Colors.white,
+      elevation: 0.0,
+      brightness: Brightness.light,
+      iconTheme: IconThemeData(color: Colors.black87),
       bottom: PreferredSize(
         child: Container(),
         preferredSize: Size.square(10),
@@ -106,7 +74,7 @@ class _HomePageState extends State<HomePage> {
       actions: [
         IconButton(
           onPressed: () {},
-          icon: Icon(Icons.filter_list),
+          icon: Icon(Icons.add),
           padding: EdgeInsets.only(right: 20, left: 20),
         )
       ],
@@ -128,17 +96,12 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _pageNumber == 0
-          ? buildSearchBar(updateSearch)
-          : buildAppBar(_pageTitles[_pageNumber]),
+      appBar: _pageNumber == 0 ? null : buildAppBar(_pageTitles[_pageNumber]),
       drawer: AppDrawer(pageController: _pageController),
       body: Container(
-        color: Colors.grey[200],
         child: PageView(
           children: [
-            PatientSearch(
-              searchQuery: searchQuery,
-            ),
+            PatientSearch(),
             PatientManagement(),
             DutyRoster(),
           ],

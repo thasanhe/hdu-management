@@ -1,68 +1,230 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:hdu_management/data/data.dart';
+import 'package:hdu_management/models/on_admission_status.dart';
 import 'package:hdu_management/models/patient.dart';
+import 'package:hdu_management/services/patient_service.dart';
+import 'package:hdu_management/widgets/management_add_tile.dart';
+import 'package:hdu_management/widgets/management_tile.dart';
+import 'package:hdu_management/widgets/patient_tile.dart';
 
-class PatientProfile extends StatelessWidget {
+String selectedCategorie = "Adults";
+
+class PatientProfile extends StatefulWidget {
   final Patient patient;
   const PatientProfile({Key? key, required this.patient}) : super(key: key);
 
   @override
+  _PatientProfileState createState() => _PatientProfileState();
+}
+
+class _PatientProfileState extends State<PatientProfile>
+    with SingleTickerProviderStateMixin {
+  List<String> categories = ["Inward", "Discharged", "Transferred", "Death"];
+
+  PatientService patientService = PatientService();
+  OnAdmissionStatus? onAdmissionStatus;
+  bool isOnAdmStatusFetched = false;
+
+  late TabController tabController;
+  int selectedIndex = 0;
+
+  fetchOnAdmissionStatusByPatient() async {
+    this.isOnAdmStatusFetched = false;
+    onAdmissionStatus = await patientService
+        .getOnAdmissionStatusByPatient(widget.patient.bhtNumber!);
+
+    setState(() {
+      this.onAdmissionStatus = onAdmissionStatus;
+      this.isOnAdmStatusFetched = true;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchOnAdmissionStatusByPatient();
+    tabController = TabController(
+      initialIndex: selectedIndex,
+      length: 4,
+      vsync: this,
+    );
+  }
+
+  getProfile() {
+    return Column(children: [
+      Container(
+        child: Text(onAdmissionStatus!.coMobidities.toString()),
+      ),
+      Text(DateTime.now()
+          .difference(widget.patient.symptomsDate)
+          .inDays
+          .toString()),
+    ]);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 3,
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(
-            patient.name + " Bed No: " + patient.bhtNumber.toString(),
-            textAlign: TextAlign.center,
-          ),
-          bottom: TabBar(
-            labelPadding: EdgeInsets.all(0),
-            tabs: [
-              Tab(
-                child: Container(
-                  // color: Colors.red,
-                  child: Center(
-                    child: Text(
-                      'Profile',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ),
+    final daysfromSymptoms =
+        DateTime.now().difference(widget.patient.symptomsDate).inDays;
+    final daysFromRAT =
+        DateTime.now().difference(widget.patient.pcrRatDate).inDays;
+    return Scaffold(
+      appBar: AppBar(
+        titleSpacing: 0,
+        // leading: Icon(CupertinoIcons.back),
+        title: Container(
+          height: 35,
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            shrinkWrap: true,
+            children: [
+              Chip(
+                label: Text("$daysfromSymptoms Days Symptoms"),
+                backgroundColor: Color(0xffFBB97C),
               ),
-              Tab(
-                child: Container(
-                  // color: Colors.green,
-                  child: Center(
-                    child: Text(
-                      'Management',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ),
+              SizedBox(
+                width: 10,
               ),
-              Tab(
-                child: Container(
-                  // color: Colors.grey[600],
-                  child: Center(
-                    child: Text(
-                      'Summary',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ),
-              ),
+              Chip(
+                  label: Text("$daysFromRAT Days RAT/PCR"),
+                  backgroundColor: Color(0xffFBB97C)),
             ],
           ),
         ),
-        body: const TabBarView(
-          children: [
-            Icon(Icons.directions_car),
-            Icon(Icons.directions_transit),
-            Icon(Icons.directions_bike),
-          ],
+        iconTheme: IconThemeData(
+          color: Colors.black,
         ),
+        elevation: 0,
+        backgroundColor: Colors.white,
       ),
+
+      body: Container(
+        color: Colors.white,
+        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 24),
+        child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: <Widget>[
+              PatientsTile(
+                patient: widget.patient,
+                isGestureEnabled: false,
+              ),
+              DefaultTabController(
+                length: 4, // length of tabs
+                initialIndex: 0,
+                child: Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      Container(
+                        height: 30,
+                        child: TabBar(
+                          isScrollable: true,
+                          overlayColor: MaterialStateColor.resolveWith(
+                              (states) => Colors.white),
+                          labelStyle: TextStyle(
+                            color: Colors.black,
+                          ),
+                          indicator: BoxDecoration(
+                            color: Color(0xffFFEEE0),
+                            borderRadius: BorderRadius.circular(50),
+                          ),
+                          labelColor: Colors.black,
+                          unselectedLabelColor: Colors.black,
+                          tabs: [
+                            Container(
+                              child: Tab(text: 'Profile'),
+                              width: 80,
+                            ),
+                            Container(
+                              child:
+                                  Tab(text: 'Parameteters'), // taken from hdu
+                              width: 100,
+                            ),
+                            Container(
+                              child: Tab(text: 'Investigations'), //lab reports
+                              width: 100,
+                            ),
+                            Container(
+                              child: Tab(text: 'Management'),
+                              width: 100,
+                            ),
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 10, bottom: 10),
+                          child: TabBarView(children: <Widget>[
+                            Container(
+                              child: Center(
+                                child: Text('Display Tab 1',
+                                    style: TextStyle(
+                                        fontSize: 22,
+                                        fontWeight: FontWeight.bold)),
+                              ),
+                            ),
+                            Container(
+                              child: Center(
+                                child: Text('Display Tab 2',
+                                    style: TextStyle(
+                                        fontSize: 22,
+                                        fontWeight: FontWeight.bold)),
+                              ),
+                            ),
+                            Container(
+                              child: Center(
+                                child: Text('Display Tab 3',
+                                    style: TextStyle(
+                                        fontSize: 22,
+                                        fontWeight: FontWeight.bold)),
+                              ),
+                            ),
+                            Container(
+                              padding: EdgeInsets.only(bottom: 10),
+                              alignment: Alignment.topCenter,
+                              child: ListView(children: [
+                                ManagementAddTile(
+                                    title: 'Add management',
+                                    expandedItemsList:
+                                        getDailyManagementToday()),
+                                ManagementTile(
+                                    title: '29/08/2021',
+                                    expandedItemsList:
+                                        getDailyManagementToday()),
+                                ManagementTile(
+                                    title: '28/08/2021',
+                                    expandedItemsList:
+                                        getDailyManagementYesterday()),
+                              ]),
+                            ),
+                          ]),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ]),
+      ),
+      // body: Column(
+      //   children: [
+
+      //     TabBarView(
+      //       children: [
+      //         Container(
+      //           color: Colors.white,
+      //           child:
+      //               isOnAdmStatusFetched ? getProfile() : circularProgress(),
+      //         ),
+      //         Icon(Icons.directions_transit),
+      //         Icon(Icons.directions_bike),
+      //       ],
+      //     ),
+      //   ],
+      // ),
+      // ),
     );
   }
 }

@@ -1,17 +1,16 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:hdu_management/models/gender.dart';
 import 'package:hdu_management/models/patient.dart';
-import 'package:hdu_management/models/patient_status.dart';
 import 'package:hdu_management/screens/admission.dart';
-import 'package:hdu_management/screens/patient_profile.dart';
+import 'package:hdu_management/screens/duty_roster.dart';
+import 'package:hdu_management/screens/patient_management.dart';
 import 'package:hdu_management/services/patient_service.dart';
-import 'package:hdu_management/utils/utils.dart';
+import 'package:hdu_management/widgets/main_drawer.dart';
+import 'package:hdu_management/widgets/patient_tile.dart';
 import 'package:hdu_management/widgets/progress.dart';
+import 'package:hdu_management/widgets/search_bar.dart';
 
 class PatientSearch extends StatefulWidget {
-  String? searchQuery;
-  PatientSearch({required this.searchQuery});
   @override
   _PatientSearchState createState() => _PatientSearchState();
 }
@@ -23,10 +22,27 @@ class _PatientSearchState extends State<PatientSearch> {
   bool isPatientFeched = false;
   List<int?> occupiedBeds = [];
 
+  String? searchQuery;
+  bool _isTyping = false;
+
+  final _searchController = TextEditingController();
+
+  late PageController _pageController;
+  late int _pageNumber;
+
   @override
   void initState() {
     super.initState();
     fetchAllPatients();
+    this._pageNumber = 0;
+    this._pageController = PageController(initialPage: _pageNumber);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _pageController.dispose();
+    _searchController.dispose();
   }
 
   filterPatients(String? query) {
@@ -53,147 +69,116 @@ class _PatientSearchState extends State<PatientSearch> {
     });
   }
 
-  getSubtitle(Patient patient) {
-    final admitionDate =
-        '${patient.dateOfAdmissionHDU!.day}/${patient.dateOfAdmissionHDU!.month}/${patient.dateOfAdmissionHDU!.year}';
-
-    return Text(
-      'DOA: $admitionDate',
-      style: TextStyle(fontSize: 12),
-    );
-  }
-
-  getColorsByStatus(PatientStatus status) {
-    if (status == PatientStatus.inward)
-      return Colors.green[400];
-    else if (status == PatientStatus.transferred)
-      return Colors.orange[400];
-    else if (status == PatientStatus.lama)
-      return Colors.pink[400];
-    else if (status == PatientStatus.discharged) return Colors.grey[400];
-    return Colors.red[400];
-  }
-
   @override
   Widget build(BuildContext context) {
-    List<Widget> buildListItems() {
+    List<Widget> getListItems() {
       List<Widget> listItems = [];
 
-      if (widget.searchQuery != null) {
-        filterPatients(widget.searchQuery);
-      }
+      listItems.add(SizedBox(
+        height: 10,
+      ));
 
       this.patientsForList!.forEach((patient) {
-        Card ptCard = Card(
-          elevation: 0,
-          child: ListTile(
-            leading: CircleAvatar(
-              child: patient.bedNumber != null
-                  ? Text(patient.bedNumber!.toString())
-                  : Text('N/A'),
-            ),
-            trailing: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Container(
-                  padding:
-                      EdgeInsets.only(left: 5, right: 5, top: 2, bottom: 2),
-                  decoration: BoxDecoration(
-                      color: getColorsByStatus(patient.currentStatus),
-                      borderRadius: BorderRadius.circular(8)),
-                  child: Container(
-                    child: Text(
-                      Utils.patientStatusToString(patient.currentStatus)
-                          .toUpperCase(),
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
-                Container(
-                  padding: EdgeInsets.only(
-                    right: 5,
-                  ),
-                  child: Text(
-                    patient.gender == Gender.male ? 'MALE' : 'FEMALE',
-                    style: TextStyle(
-                      fontSize: 12,
-                    ),
-                  ),
-                ),
-                Container(
-                  padding: EdgeInsets.only(
-                    right: 5,
-                  ),
-                  child: Text(
-                    '${patient.age.toString()} Y',
-                    style: TextStyle(
-                      fontSize: 12,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            title: Text(patient.name),
-            subtitle: getSubtitle(patient),
-          ),
-        );
-
-        Container cont = Container(
-          height: 85,
-          child: ptCard,
-        );
-
-        GestureDetector gd = GestureDetector(
-          child: cont,
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => PatientProfile(
-                  patient: patient,
-                ),
-              ),
-            );
-          },
-        );
-
-        listItems.add(gd);
+        listItems.add(PatientsTile(
+          patient: patient,
+          isGestureEnabled: true,
+        ));
       });
 
       return listItems;
     }
 
+    updateSearch(String? searchQuery) {
+      setState(() {
+        this.searchQuery = searchQuery;
+        this._isTyping = _searchController.text.isNotEmpty;
+        filterPatients(searchQuery);
+      });
+    }
+
+    clearSearch() {
+      setState(() {
+        this._isTyping = false;
+        this.searchQuery = '';
+        _searchController.clear();
+        filterPatients('');
+      });
+    }
+
+    onPageChange(int pageNumber) {
+      setState(() {
+        this._pageNumber = pageNumber;
+      });
+    }
+
     return Scaffold(
-      body: Container(
-        child: !isPatientFeched
-            ? circularProgress()
-            : RefreshIndicator(
-                child: ListView(
-                  children: buildListItems(),
-                ),
-                onRefresh: () {
-                  fetchAllPatients();
-                  print("Refreshing the list");
-                  return Future.value('');
-                },
-              ),
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        iconTheme: IconThemeData(
+          color: Colors.black,
+        ),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        actions: [
+          IconButton(
+            splashRadius: 20,
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 30),
+            onPressed: () {
+              showDialog(
+                  context: context,
+                  builder: (context) {
+                    return Scaffold(
+                        body: Admission(
+                            occupiedBeds: occupiedBeds,
+                            onRefresh: fetchAllPatients));
+                  });
+            },
+            icon: Icon(
+              Icons.add,
+              size: 30,
+            ),
+          )
+        ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          showDialog(
-              context: context,
-              builder: (context) {
-                return Scaffold(
-                    body: Admission(
-                        occupiedBeds: occupiedBeds,
-                        onRefresh: fetchAllPatients));
-              });
-        },
-        child: Icon(Icons.add),
+      body: PageView(
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SearchBar(
+                  onSearch: updateSearch,
+                  clearSearch: clearSearch,
+                  searchController: _searchController,
+                  isTyping: _isTyping),
+              Expanded(
+                child: Container(
+                  child: !isPatientFeched
+                      ? circularProgress()
+                      : RefreshIndicator(
+                          child: ListView(
+                            padding: EdgeInsets.symmetric(
+                                vertical: 10, horizontal: 24),
+                            children: getListItems(),
+                          ),
+                          onRefresh: () {
+                            fetchAllPatients();
+                            print("Refreshing the list");
+                            return Future.value('');
+                          },
+                        ),
+                ),
+              ),
+            ],
+          ),
+          PatientManagement(),
+          DutyRoster(),
+        ],
+        controller: _pageController,
+        physics: NeverScrollableScrollPhysics(),
+        onPageChanged: onPageChange,
+      ),
+      drawer: AppDrawer(
+        pageController: _pageController,
       ),
     );
   }

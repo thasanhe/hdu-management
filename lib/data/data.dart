@@ -1,9 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hdu_management/models/drawer_item.dart';
-import 'package:hdu_management/models/gender.dart';
-import 'package:hdu_management/models/patient.dart';
-import 'package:hdu_management/screens/admission.dart';
 
 // List<Patient> getPatients() {
 //   Patient p1 = Patient(name: 'Dhammika', gender: Gender.male, bhtNumber: 1);
@@ -41,6 +38,30 @@ import 'package:hdu_management/screens/admission.dart';
 
 //   return patients;
 // }
+List<String> getDailyManagementToday() {
+  return [
+    'Simple Face mask - 5 l/m<<!!>>yes',
+    'IV Cefitriazon 2g - Daily<<!!>>yes',
+    'IV Dexamethasone 6mg - TDS<<!!>>yes',
+    'SC Enoxapharin 40mg - Daily<<!!>>no',
+    'Paracitamol 1g - PRN<<!!>>yes',
+    'Omeprazol 20mg - BD<<!!>>yes',
+    'Theophyllin 125mg - BD<<!!>>yes',
+    'Vit-D 2000IU - Daily<<!!>>yes',
+  ];
+}
+
+List<String> getDailyManagementYesterday() {
+  return [
+    'IV Cefitriazon 2g - Daily<<!!>>yes',
+    'IV Dexamethasone 6mg - TDS<<!!>>yes',
+    'SC Enoxapharin 40mg - Daily<<!!>>yes',
+    'Paracitamol 1g - PRN<<!!>>yes',
+    'Omeprazol 20mg - BD<<!!>>yes',
+    'Theophyllin 125mg - BD<<!!>>yes',
+    'Vit-D 2000IU - Daily<<!!>>yes',
+  ];
+}
 
 List<DrawerItem> getMainDrawerItems() {
   List<DrawerItem> items = [];

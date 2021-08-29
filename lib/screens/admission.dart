@@ -248,7 +248,7 @@ class _AdmissionPageState extends State<Admission> {
   getTextFieldwithTags(
       String helperText, String hintText, List<String> tagsCollector) {
     return TextFieldTags(
-      textSeparators: [',', '.', ' ', '\n'],
+      textSeparators: [',', '.', ' '],
       tagsStyler: TagsStyler(
         tagTextStyle: TextStyle(color: Colors.white),
         tagDecoration: BoxDecoration(
@@ -256,8 +256,8 @@ class _AdmissionPageState extends State<Admission> {
           borderRadius: BorderRadius.circular(8.0),
         ),
         tagCancelIcon: Icon(Icons.cancel,
-            size: 16.0, color: Color.fromARGB(255, 235, 214, 214)),
-        tagPadding: const EdgeInsets.all(10.0),
+            size: 20.0, color: Color.fromARGB(255, 235, 214, 214)),
+        tagPadding: const EdgeInsets.all(5.0),
       ),
       textFieldStyler: TextFieldStyler(
         helperText: helperText,
@@ -268,8 +268,10 @@ class _AdmissionPageState extends State<Admission> {
         isDense: true,
       ),
       onTag: (tag) {
-        tagsCollector.add(tag);
-        print(tagsCollector);
+        if (tag.trim().isNotEmpty) {
+          tagsCollector.add(tag);
+          print(tagsCollector);
+        }
       },
       onDelete: (tag) {
         tagsCollector.remove(tag);
