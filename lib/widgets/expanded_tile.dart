@@ -19,15 +19,23 @@ class ExpandedTile extends StatefulWidget {
 class ExpandedTileState extends State<ExpandedTile> {
   buildExpandedItems() {
     return widget.expandedItemsList.map((e) {
-      bool isContinued = e.split('<<!!>>').last == 'yes' ? true : false;
+      bool isContinued = e.split('<<!!>>').last == 'yes';
+      bool isNew = e.split('<<!!>>').last == 'new';
+
       return Padding(
         padding: const EdgeInsets.only(
             right: 16.0, left: 16.0, top: 8.0, bottom: 8.0),
         child: Row(
           children: <Widget>[
-            Text(e.split('<<!!>>').first),
+            Expanded(
+              child: Text(e.split('<<!!>>').first),
+            ),
             Spacer(),
-            Icon(isContinued ? Icons.check : Icons.close),
+            Icon(isContinued
+                ? Icons.check
+                : isNew
+                    ? Icons.play_arrow
+                    : Icons.close),
           ],
         ),
       );

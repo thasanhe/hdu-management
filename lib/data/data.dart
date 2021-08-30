@@ -60,6 +60,7 @@ List<String> getDailyManagementYesterday() {
     'Omeprazol 20mg - BD<<!!>>yes',
     'Theophyllin 125mg - BD<<!!>>yes',
     'Vit-D 2000IU - Daily<<!!>>yes',
+    'Vit-E 2000IU - Daily<<!!>>new',
   ];
 }
 

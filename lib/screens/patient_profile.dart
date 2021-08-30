@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:hdu_management/data/data.dart';
 import 'package:hdu_management/models/on_admission_status.dart';
 import 'package:hdu_management/models/patient.dart';
+import 'package:hdu_management/tabs/patient_management.dart';
 import 'package:hdu_management/services/patient_service.dart';
 import 'package:hdu_management/widgets/management_add_tile.dart';
 import 'package:hdu_management/widgets/management_tile.dart';
@@ -69,162 +70,149 @@ class _PatientProfileState extends State<PatientProfile>
         DateTime.now().difference(widget.patient.symptomsDate).inDays;
     final daysFromRAT =
         DateTime.now().difference(widget.patient.pcrRatDate).inDays;
-    return Scaffold(
-      appBar: AppBar(
-        titleSpacing: 0,
-        // leading: Icon(CupertinoIcons.back),
-        title: Container(
-          height: 35,
-          child: ListView(
-            scrollDirection: Axis.horizontal,
-            shrinkWrap: true,
-            children: [
-              Chip(
-                label: Text("$daysfromSymptoms Days Symptoms"),
-                backgroundColor: Color(0xffFBB97C),
-              ),
-              SizedBox(
-                width: 10,
-              ),
-              Chip(
-                  label: Text("$daysFromRAT Days RAT/PCR"),
-                  backgroundColor: Color(0xffFBB97C)),
-            ],
+    return GestureDetector(
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+      child: Scaffold(
+        appBar: AppBar(
+          titleSpacing: 0,
+          // leading: Icon(CupertinoIcons.back),
+          title: Container(
+            height: 35,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              shrinkWrap: true,
+              children: [
+                Chip(
+                  label: Text("$daysfromSymptoms Days Symptoms"),
+                  backgroundColor: Color(0xffFBB97C),
+                ),
+                SizedBox(
+                  width: 10,
+                ),
+                Chip(
+                    label: Text("$daysFromRAT Days RAT/PCR"),
+                    backgroundColor: Color(0xffFBB97C)),
+              ],
+            ),
           ),
+          iconTheme: IconThemeData(
+            color: Colors.black,
+          ),
+          elevation: 0,
+          backgroundColor: Colors.white,
         ),
-        iconTheme: IconThemeData(
-          color: Colors.black,
-        ),
-        elevation: 0,
-        backgroundColor: Colors.white,
-      ),
 
-      body: Container(
-        color: Colors.white,
-        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 24),
-        child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: <Widget>[
-              PatientsTile(
-                patient: widget.patient,
-                isGestureEnabled: false,
-              ),
-              DefaultTabController(
-                length: 4, // length of tabs
-                initialIndex: 0,
-                child: Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: <Widget>[
-                      Container(
-                        height: 30,
-                        child: TabBar(
-                          isScrollable: true,
-                          overlayColor: MaterialStateColor.resolveWith(
-                              (states) => Colors.white),
-                          labelStyle: TextStyle(
-                            color: Colors.black,
+        body: Container(
+          color: Colors.white,
+          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 24),
+          child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                PatientsTile(
+                  patient: widget.patient,
+                  isGestureEnabled: false,
+                ),
+                DefaultTabController(
+                  length: 4, // length of tabs
+                  initialIndex: 0,
+                  child: Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: <Widget>[
+                        Container(
+                          height: 30,
+                          child: TabBar(
+                            isScrollable: true,
+                            overlayColor: MaterialStateColor.resolveWith(
+                                (states) => Colors.white),
+                            labelStyle: TextStyle(
+                              color: Colors.black,
+                            ),
+                            indicator: BoxDecoration(
+                              color: Color(0xffFFEEE0),
+                              borderRadius: BorderRadius.circular(50),
+                            ),
+                            labelColor: Colors.black,
+                            unselectedLabelColor: Colors.black,
+                            tabs: [
+                              Container(
+                                child: Tab(text: 'Profile'),
+                                width: 80,
+                              ),
+                              Container(
+                                child:
+                                    Tab(text: 'Parameteters'), // taken from hdu
+                                width: 100,
+                              ),
+                              Container(
+                                child:
+                                    Tab(text: 'Investigations'), //lab reports
+                                width: 100,
+                              ),
+                              Container(
+                                child: Tab(text: 'Management'),
+                                width: 100,
+                              ),
+                            ],
                           ),
-                          indicator: BoxDecoration(
-                            color: Color(0xffFFEEE0),
-                            borderRadius: BorderRadius.circular(50),
+                        ),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 10, bottom: 10),
+                            child: TabBarView(children: <Widget>[
+                              Container(
+                                child: Center(
+                                  child: Text('Display Tab 1',
+                                      style: TextStyle(
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.bold)),
+                                ),
+                              ),
+                              Container(
+                                child: Center(
+                                  child: Text('Display Tab 2',
+                                      style: TextStyle(
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.bold)),
+                                ),
+                              ),
+                              Container(
+                                child: Center(
+                                  child: Text('Display Tab 3',
+                                      style: TextStyle(
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.bold)),
+                                ),
+                              ),
+                              PatientManagement(patient: widget.patient),
+                            ]),
                           ),
-                          labelColor: Colors.black,
-                          unselectedLabelColor: Colors.black,
-                          tabs: [
-                            Container(
-                              child: Tab(text: 'Profile'),
-                              width: 80,
-                            ),
-                            Container(
-                              child:
-                                  Tab(text: 'Parameteters'), // taken from hdu
-                              width: 100,
-                            ),
-                            Container(
-                              child: Tab(text: 'Investigations'), //lab reports
-                              width: 100,
-                            ),
-                            Container(
-                              child: Tab(text: 'Management'),
-                              width: 100,
-                            ),
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 10, bottom: 10),
-                          child: TabBarView(children: <Widget>[
-                            Container(
-                              child: Center(
-                                child: Text('Display Tab 1',
-                                    style: TextStyle(
-                                        fontSize: 22,
-                                        fontWeight: FontWeight.bold)),
-                              ),
-                            ),
-                            Container(
-                              child: Center(
-                                child: Text('Display Tab 2',
-                                    style: TextStyle(
-                                        fontSize: 22,
-                                        fontWeight: FontWeight.bold)),
-                              ),
-                            ),
-                            Container(
-                              child: Center(
-                                child: Text('Display Tab 3',
-                                    style: TextStyle(
-                                        fontSize: 22,
-                                        fontWeight: FontWeight.bold)),
-                              ),
-                            ),
-                            Container(
-                              padding: EdgeInsets.only(bottom: 10),
-                              alignment: Alignment.topCenter,
-                              child: ListView(children: [
-                                ManagementAddTile(
-                                    title: 'Add management',
-                                    expandedItemsList:
-                                        getDailyManagementToday()),
-                                ManagementTile(
-                                    title: '29/08/2021',
-                                    expandedItemsList:
-                                        getDailyManagementToday()),
-                                ManagementTile(
-                                    title: '28/08/2021',
-                                    expandedItemsList:
-                                        getDailyManagementYesterday()),
-                              ]),
-                            ),
-                          ]),
-                        ),
-                      )
-                    ],
+                        )
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ]),
-      ),
-      // body: Column(
-      //   children: [
+              ]),
+        ),
+        // body: Column(
+        //   children: [
 
-      //     TabBarView(
-      //       children: [
-      //         Container(
-      //           color: Colors.white,
-      //           child:
-      //               isOnAdmStatusFetched ? getProfile() : circularProgress(),
-      //         ),
-      //         Icon(Icons.directions_transit),
-      //         Icon(Icons.directions_bike),
-      //       ],
-      //     ),
-      //   ],
-      // ),
-      // ),
+        //     TabBarView(
+        //       children: [
+        //         Container(
+        //           color: Colors.white,
+        //           child:
+        //               isOnAdmStatusFetched ? getProfile() : circularProgress(),
+        //         ),
+        //         Icon(Icons.directions_transit),
+        //         Icon(Icons.directions_bike),
+        //       ],
+        //     ),
+        //   ],
+        // ),
+        // ),
+      ),
     );
   }
 }

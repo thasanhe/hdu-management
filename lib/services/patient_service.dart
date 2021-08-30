@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:hdu_management/models/daily_management.dart';
 import 'package:hdu_management/models/gender.dart';
 import 'package:hdu_management/models/on_admission_status.dart';
 import 'package:hdu_management/models/patient.dart';
@@ -8,6 +9,8 @@ class PatientService {
   final patientsRef = FirebaseFirestore.instance.collection('patients');
   final onAdmissionStatusRef =
       FirebaseFirestore.instance.collection('on_admission_status');
+  final dailyManagementRef =
+      FirebaseFirestore.instance.collection('daily_management');
 
   Future<List<Patient>> getAllPatients() async {
     List<Patient> patientList = [];
@@ -27,6 +30,22 @@ class PatientService {
     status = OnAdmissionStatus.fromDocument(querySnapshot);
     print('Retrieved on admission status');
     return status;
+  }
+
+  Future<List<DailyManagement>>
+      getDailyManagementByPatientOrderedByTimeStampDesc(
+          double bhtNumber) async {
+    List<DailyManagement> dailyManagementList = [];
+    final querySnapshot = await dailyManagementRef
+        .where('bhtNumber', isEqualTo: bhtNumber)
+        .orderBy('createdDateTime', descending: true)
+        .get();
+
+    querySnapshot.docs.forEach((doc) {
+      dailyManagementList.add(DailyManagement.fromDocument(doc));
+    });
+    print('Retrieved daily managements');
+    return dailyManagementList;
   }
 
   Future<String> createPatient(Patient patient) async {
@@ -76,5 +95,22 @@ class PatientService {
     OnAdmissionStatus savedStatus = OnAdmissionStatus.fromDocument(status);
     print('Created on admission status');
     return Future.value(savedStatus.bhtNumber.toString());
+  }
+
+  Future<String> createPatientManagement(
+      DailyManagement dailyManagement) async {
+    final docId = dailyManagement.bhtNumber.toString() +
+        '-' +
+        dailyManagement.createdDateTime.toIso8601String();
+    await dailyManagementRef.doc(docId).set({
+      "bhtNumber": dailyManagement.bhtNumber,
+      "management": dailyManagement.management,
+      "createdDateTime": dailyManagement.createdDateTime,
+    });
+
+    final status = await dailyManagementRef.doc(docId).get();
+    DailyManagement savedManagement = DailyManagement.fromDocument(status);
+    print('Created daily management');
+    return Future.value(savedManagement.bhtNumber.toString());
   }
 }
