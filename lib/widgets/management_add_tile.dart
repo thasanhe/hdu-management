@@ -27,7 +27,7 @@ class ManagementAddTileState extends State<ManagementAddTile> {
 
       return Padding(
         padding: const EdgeInsets.only(
-            right: 16.0, left: 16.0, top: 8.0, bottom: 8.0),
+            right: 12.0, left: 16.0, top: 8.0, bottom: 8.0),
         child: Row(
           children: <Widget>[
             Text(title),
