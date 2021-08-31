@@ -44,6 +44,8 @@ class ExpandedTileState extends State<ExpandedTile> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context).copyWith(dividerColor: Colors.transparent);
+
     return Card(
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(15.0))),
@@ -52,11 +54,14 @@ class ExpandedTileState extends State<ExpandedTile> {
       margin: EdgeInsets.only(bottom: 10, top: 10),
       child: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: ExpansionTile(
-          backgroundColor: Color(0xffFFEEE0),
-          title: buildTitle(),
-          // trailing: SizedBox(),
-          children: buildExpandedItems(),
+        child: Theme(
+          data: theme,
+          child: ExpansionTile(
+            backgroundColor: Color(0xffFFEEE0),
+            title: buildTitle(),
+            // trailing: SizedBox(),
+            children: buildExpandedItems(),
+          ),
         ),
       ),
     );
