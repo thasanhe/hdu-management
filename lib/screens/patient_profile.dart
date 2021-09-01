@@ -1,12 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:hdu_management/data/data.dart';
 import 'package:hdu_management/models/on_admission_status.dart';
 import 'package:hdu_management/models/patient.dart';
+import 'package:hdu_management/tabs/investigation_tab.dart';
 import 'package:hdu_management/tabs/patient_management.dart';
 import 'package:hdu_management/services/patient_service.dart';
-import 'package:hdu_management/widgets/management_add_tile.dart';
-import 'package:hdu_management/widgets/management_tile.dart';
 import 'package:hdu_management/widgets/patient_tile.dart';
 
 String selectedCategorie = "Adults";
@@ -75,7 +73,12 @@ class _PatientProfileState extends State<PatientProfile>
       child: Scaffold(
         appBar: AppBar(
           titleSpacing: 0,
-          // leading: Icon(CupertinoIcons.back),
+          leading: GestureDetector(
+            child: Icon(CupertinoIcons.back),
+            onTap: () {
+              Navigator.pop(context);
+            },
+          ),
           title: Container(
             height: 35,
             child: ListView(
@@ -83,15 +86,28 @@ class _PatientProfileState extends State<PatientProfile>
               shrinkWrap: true,
               children: [
                 Chip(
-                  label: Text("$daysfromSymptoms Days Symptoms"),
-                  backgroundColor: Color(0xffFBB97C),
+                  label: Text(
+                    " $daysfromSymptoms Days Symptoms",
+                    style: TextStyle(
+                      color: Colors.black54,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  backgroundColor: Color(0xffEFEFEF),
                 ),
                 SizedBox(
                   width: 10,
                 ),
                 Chip(
-                    label: Text("$daysFromRAT Days RAT/PCR"),
-                    backgroundColor: Color(0xffFBB97C)),
+                  label: Text(
+                    "$daysFromRAT Days RAT/PCR",
+                    style: TextStyle(
+                      color: Colors.black54,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  backgroundColor: Color(0xffEFEFEF),
+                ),
               ],
             ),
           ),
@@ -178,12 +194,7 @@ class _PatientProfileState extends State<PatientProfile>
                                 ),
                               ),
                               Container(
-                                child: Center(
-                                  child: Text('Display Tab 3',
-                                      style: TextStyle(
-                                          fontSize: 22,
-                                          fontWeight: FontWeight.bold)),
-                                ),
+                                child: InvestigationTab(),
                               ),
                               PatientManagement(patient: widget.patient),
                             ]),

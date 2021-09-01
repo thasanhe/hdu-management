@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:hdu_management/models/patient.dart';
 import 'package:hdu_management/screens/admission.dart';
 import 'package:hdu_management/screens/duty_roster.dart';
-import 'package:hdu_management/tabs/patient_management.dart';
 import 'package:hdu_management/services/patient_service.dart';
 import 'package:hdu_management/widgets/main_drawer.dart';
 import 'package:hdu_management/widgets/patient_tile.dart';

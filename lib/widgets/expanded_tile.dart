@@ -26,11 +26,12 @@ class ExpandedTileState extends State<ExpandedTile> {
         padding: const EdgeInsets.only(
             right: 16.0, left: 16.0, top: 8.0, bottom: 8.0),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             Expanded(
               child: Text(e.split('<<!!>>').first),
             ),
-            Spacer(),
+            // Spacer(),
             Icon(isContinued
                 ? Icons.check
                 : isNew
@@ -71,9 +72,15 @@ class ExpandedTileState extends State<ExpandedTile> {
     return Column(
       children: <Widget>[
         Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: <Widget>[
-            Text(widget.title),
+            Text(widget.title.split('@').first),
             Spacer(),
+            Text(
+              widget.title.split('@').last,
+              style: TextStyle(fontSize: 12),
+            ),
+            // Spacer(),
           ],
         ),
         Row(

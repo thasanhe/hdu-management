@@ -72,7 +72,14 @@ class PatientsTile extends StatelessWidget {
                       Text(
                         "DOA: $dateOfAdmission   $status",
                         style: TextStyle(fontSize: 12),
-                      )
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Text(
+                        "On O2 Concentrator (10 l/min)",
+                        style: TextStyle(fontSize: 12),
+                      ),
                     ],
                   ),
                 ),
