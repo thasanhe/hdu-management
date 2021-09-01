@@ -73,12 +73,6 @@ class _PatientProfileState extends State<PatientProfile>
       child: Scaffold(
         appBar: AppBar(
           titleSpacing: 0,
-          leading: GestureDetector(
-            child: Icon(CupertinoIcons.back),
-            onTap: () {
-              Navigator.pop(context);
-            },
-          ),
           title: Container(
             height: 35,
             child: ListView(
