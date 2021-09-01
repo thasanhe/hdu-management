@@ -61,15 +61,18 @@ class ManagementAddTileState extends State<ManagementAddTile> {
   }
 
   saveDailyManagement() {
-    DailyManagement dailyManagement = DailyManagement(
-        bhtNumber: widget.bhtNumber,
-        management: prepareFinalManagementList(),
-        createdDateTime: DateTime.now());
+    final list = prepareFinalManagementList();
+    if (list.isNotEmpty) {
+      DailyManagement dailyManagement = DailyManagement(
+          bhtNumber: widget.bhtNumber,
+          management: list,
+          createdDateTime: DateTime.now());
 
-    try {
-      patientService.createPatientManagement(dailyManagement);
-      widget.onRefresh();
-    } catch (error) {}
+      try {
+        patientService.createPatientManagement(dailyManagement);
+        widget.onRefresh();
+      } catch (error) {}
+    }
   }
 
   addNewManagement(String input) {
@@ -245,7 +248,6 @@ class ManagementAddTileState extends State<ManagementAddTile> {
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: ListView(
-                reverse: false,
                 shrinkWrap: true,
                 children: buildExpandedItems(),
               ),
