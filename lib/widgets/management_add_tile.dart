@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hdu_management/common/common_style.dart';
@@ -68,10 +70,22 @@ class ManagementAddTileState extends State<ManagementAddTile> {
           management: list,
           createdDateTime: DateTime.now());
 
+      //   Navigator.pop(context, username);
+      // },
+      // );
+
       try {
+        final SnackBar snackBar =
+            SnackBar(content: Text('Mangement added successfully!'));
+
         patientService.createPatientManagement(dailyManagement);
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
         widget.onRefresh();
-      } catch (error) {}
+      } catch (error) {
+        final SnackBar snackBar =
+            SnackBar(content: Text('Sormething went wrong! Please try again'));
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      }
     }
   }
 
