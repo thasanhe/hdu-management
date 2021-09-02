@@ -122,20 +122,6 @@ class ManagementAddTileState extends State<ManagementAddTile> {
   buildExpandedItems() {
     List<Padding> expandedListItems = [];
 
-    expandedListItems.add(Padding(
-      padding: const EdgeInsets.only(
-        right: 16.0,
-        left: 16.0,
-        top: 8.0,
-        bottom: 8.0,
-      ),
-      child: TextFormField(
-        controller: textEditingController,
-        decoration: getInputDecoration(),
-        onFieldSubmitted: addNewManagement,
-      ),
-    ));
-
     if (managementStatusMap.isNotEmpty) {
       managementStatusMap.entries.forEach((entry) {
         bool isChecked = entry.value;
@@ -187,7 +173,22 @@ class ManagementAddTileState extends State<ManagementAddTile> {
         ));
       });
     }
-    return expandedListItems;
+
+    expandedListItems.add(Padding(
+      padding: const EdgeInsets.only(
+        right: 16.0,
+        left: 16.0,
+        top: 8.0,
+        bottom: 8.0,
+      ),
+      child: TextFormField(
+        controller: textEditingController,
+        decoration: getInputDecoration(),
+        onFieldSubmitted: addNewManagement,
+      ),
+    ));
+
+    return expandedListItems.reversed.toList();
   }
 
   @override
