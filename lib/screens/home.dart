@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hdu_management/screens/duty_roster.dart';
-import 'package:hdu_management/tabs/patient_management.dart';
 import 'package:hdu_management/screens/patient_search.dart';
 import 'package:hdu_management/widgets/main_drawer.dart';
 

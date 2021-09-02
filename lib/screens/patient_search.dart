@@ -156,7 +156,7 @@ class _PatientSearchState extends State<PatientSearch> {
                       : RefreshIndicator(
                           child: ListView(
                             padding: EdgeInsets.symmetric(
-                                vertical: 10, horizontal: 24),
+                                vertical: 10, horizontal: 15),
                             children: getListItems(),
                           ),
                           onRefresh: () {

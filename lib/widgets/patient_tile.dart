@@ -13,9 +13,6 @@ class PatientsTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dateOfAdmission =
-        '${patient.dateOfAdmissionHDU!.day}/${patient.dateOfAdmissionHDU!.month}/${patient.dateOfAdmissionHDU!.year}';
-
     final bedNumber = patient.bedNumber != null
         ? (patient.bedNumber! < 10
                 ? '0${patient.bedNumber}'
@@ -49,7 +46,7 @@ class PatientsTile extends StatelessWidget {
               decoration: BoxDecoration(
                   color: Color(0xffFFEEE0),
                   borderRadius: BorderRadius.circular(20)),
-              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+              padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
@@ -120,7 +117,7 @@ class PatientsTile extends StatelessWidget {
             decoration: BoxDecoration(
                 color: Color(0xffFFEEE0),
                 borderRadius: BorderRadius.circular(20)),
-            padding: EdgeInsets.only(left: 0, right: 24, top: 18, bottom: 18),
+            padding: EdgeInsets.only(left: 0, right: 15, top: 15, bottom: 15),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               // crossAxisAlignment: CrossAxisAlignment.start,

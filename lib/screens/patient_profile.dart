@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:hdu_management/models/on_admission_status.dart';
 import 'package:hdu_management/models/patient.dart';
 import 'package:hdu_management/tabs/investigation_tab.dart';
-import 'package:hdu_management/tabs/patient_management.dart';
+import 'package:hdu_management/tabs/routine_management.dart';
 import 'package:hdu_management/services/patient_service.dart';
+import 'package:hdu_management/tabs/routine_parameters.dart';
 import 'package:hdu_management/widgets/patient_tile.dart';
 
 String selectedCategorie = "Adults";
@@ -140,18 +141,11 @@ class _PatientProfileState extends State<PatientProfile>
                                         fontWeight: FontWeight.bold)),
                               ),
                             ),
-                            Container(
-                              child: Center(
-                                child: Text('Display Tab 2',
-                                    style: TextStyle(
-                                        fontSize: 22,
-                                        fontWeight: FontWeight.bold)),
-                              ),
-                            ),
+                            RoutineParameters(patient: widget.patient),
                             Container(
                               child: InvestigationTab(),
                             ),
-                            PatientManagement(patient: widget.patient),
+                            RoutineManagement(patient: widget.patient),
                           ]),
                         ),
                       )

@@ -8,14 +8,14 @@ import 'package:hdu_management/widgets/progress.dart';
 import 'package:hdu_management/widgets/show_management.dart';
 import 'package:intl/intl.dart';
 
-class PatientManagement extends StatefulWidget {
+class RoutineManagement extends StatefulWidget {
   final Patient patient;
-  const PatientManagement({Key? key, required this.patient}) : super(key: key);
+  const RoutineManagement({Key? key, required this.patient}) : super(key: key);
   @override
-  _PatientManagementState createState() => _PatientManagementState();
+  _RoutineManagementState createState() => _RoutineManagementState();
 }
 
-class _PatientManagementState extends State<PatientManagement> {
+class _RoutineManagementState extends State<RoutineManagement> {
   late PatientService patientService;
 
   late List<DailyManagement> dailyManagementList = [];
