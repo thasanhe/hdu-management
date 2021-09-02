@@ -7,9 +7,9 @@ import 'package:hdu_management/utils/utils.dart';
 
 class PatientsTile extends StatelessWidget {
   final Patient patient;
-  final bool isGestureEnabled;
+  final bool isSearch;
 
-  PatientsTile({required this.patient, required this.isGestureEnabled});
+  PatientsTile({required this.patient, required this.isSearch});
 
   @override
   Widget build(BuildContext context) {
@@ -25,40 +25,121 @@ class PatientsTile extends StatelessWidget {
     final name = patient.name;
     final gender = Gender.male == patient.gender ? 'MALE' : 'FEMALE';
     final age = patient.age.toString();
-    final status =
-        Utils.patientStatusToString(patient.currentStatus).toUpperCase();
+    final status = patient.currentStatus.toUpperCase();
 
-    return GestureDetector(
-      onTap: isGestureEnabled
-          ? () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => PatientProfile(
-                    patient: patient,
+    final daysfromSymptoms =
+        DateTime.now().difference(patient.symptomsDate).inDays;
+    final daysFromRAT = DateTime.now().difference(patient.pcrRatDate).inDays;
+
+    buildTileForSearch() {
+      return GestureDetector(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => PatientProfile(
+                patient: patient,
+              ),
+            ),
+          );
+        },
+        child: Column(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                  color: Color(0xffFFEEE0),
+                  borderRadius: BorderRadius.circular(20)),
+              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  SizedBox(
+                    width: 10,
                   ),
-                ),
-              );
-            }
-          : null,
-      child: Column(
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Text(
+                          "$name",
+                          overflow: TextOverflow.ellipsis,
+                          softWrap: true,
+                          style:
+                              TextStyle(color: Color(0xffFC9535), fontSize: 19),
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Text(
+                          "$status",
+                          style: TextStyle(
+                              fontSize: 12, fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Text(
+                          "SYMPTOMS: ${daysfromSymptoms}D   PCR/RAT: ${daysFromRAT}D",
+                          style: TextStyle(
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Spacer(),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 15, vertical: 9),
+                    decoration: BoxDecoration(
+                        color: Color(0xffFBB97C),
+                        borderRadius: BorderRadius.circular(13)),
+                    child: Text(
+                      "Bed $bedNumber\n$gender\n$age Y",
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(
+              height: 20,
+            ),
+          ],
+        ),
+      );
+    }
+
+    buildTileForProfile() {
+      return Column(
         children: [
           Container(
             decoration: BoxDecoration(
                 color: Color(0xffFFEEE0),
                 borderRadius: BorderRadius.circular(20)),
-            padding: EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+            padding: EdgeInsets.only(left: 0, right: 24, top: 18, bottom: 18),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              // crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                SizedBox(
-                  width: 10,
-                ),
+                IconButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    icon: Icon(CupertinoIcons.back)),
+                // SizedBox(
+                //   width: 5,
+                // ),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
+                      // IconButton(
+                      //     onPressed: () {}, icon: Icon(CupertinoIcons.back)),
                       Text(
                         "$name",
                         overflow: TextOverflow.ellipsis,
@@ -70,15 +151,18 @@ class PatientsTile extends StatelessWidget {
                         height: 10,
                       ),
                       Text(
-                        "DOA: $dateOfAdmission   $status",
-                        style: TextStyle(fontSize: 12),
+                        "$status",
+                        style: TextStyle(
+                            fontSize: 12, fontWeight: FontWeight.bold),
                       ),
                       SizedBox(
                         height: 10,
                       ),
                       Text(
-                        "On O2 Concentrator (10 l/min)",
-                        style: TextStyle(fontSize: 12),
+                        "SYMPTOMS: ${daysfromSymptoms}D   PCR/RAT: ${daysFromRAT}D",
+                        style: TextStyle(
+                          fontSize: 12,
+                        ),
                       ),
                     ],
                   ),
@@ -104,7 +188,9 @@ class PatientsTile extends StatelessWidget {
             height: 20,
           ),
         ],
-      ),
-    );
+      );
+    }
+
+    return isSearch ? buildTileForSearch() : buildTileForProfile();
   }
 }

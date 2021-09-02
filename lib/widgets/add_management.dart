@@ -1,19 +1,17 @@
-import 'dart:async';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hdu_management/common/common_style.dart';
 import 'package:hdu_management/models/daily_management.dart';
 import 'package:hdu_management/services/patient_service.dart';
 
-class ManagementAddTile extends StatefulWidget {
+class AddManagement extends StatefulWidget {
   final double bhtNumber;
   final String title;
   final List<String> expandedItemsList;
   final IconData? trailingIcon;
   final VoidCallback onRefresh;
 
-  ManagementAddTile({
+  AddManagement({
     required this.bhtNumber,
     required this.title,
     required this.expandedItemsList,
@@ -22,23 +20,24 @@ class ManagementAddTile extends StatefulWidget {
   });
 
   @override
-  ManagementAddTileState createState() => ManagementAddTileState();
+  AddManagementState createState() => AddManagementState();
 }
 
-class ManagementAddTileState extends State<ManagementAddTile> {
+class AddManagementState extends State<AddManagement> {
   late TextEditingController textEditingController;
   late PatientService patientService;
-  static const String stringDelemiter = '<<!!>>';
+  static const String statusDelemiter = '<<!!>>';
+  static const String dateDelemiter = '<<DD>>';
 
   Map<String, bool> managementStatusMap = {};
 
   @override
   initState() {
     widget.expandedItemsList
-        .where((e) => 'yesnew'.contains(e.split(stringDelemiter).last))
+        .where((e) => 'yesnew'.contains(e.split(statusDelemiter).last))
         .forEach((e) {
-      if ('new' == e.split(stringDelemiter).last) {
-        e = e.split(stringDelemiter).first + '${stringDelemiter}yes';
+      if ('new' == e.split(statusDelemiter).last) {
+        e = e.split(statusDelemiter).first + '${statusDelemiter}yes';
       }
       managementStatusMap.putIfAbsent(e, () => true);
     });
@@ -54,11 +53,15 @@ class ManagementAddTileState extends State<ManagementAddTile> {
   }
 
   List<String> prepareFinalManagementList() {
+    final epochTime = DateTime.now().millisecondsSinceEpoch;
     return managementStatusMap.entries.map((e) {
       if (e.value) {
         return e.key;
       }
-      return e.key.split(stringDelemiter).first + '${stringDelemiter}no';
+      return e.key.split(statusDelemiter).first +
+          dateDelemiter +
+          epochTime.toString() +
+          '${statusDelemiter}no';
     }).toList();
   }
 
@@ -69,11 +72,6 @@ class ManagementAddTileState extends State<ManagementAddTile> {
           bhtNumber: widget.bhtNumber,
           management: list,
           createdDateTime: DateTime.now());
-
-      //   Navigator.pop(context, username);
-      // },
-      // );
-
       try {
         final SnackBar snackBar =
             SnackBar(content: Text('Mangement added successfully!'));
@@ -92,8 +90,14 @@ class ManagementAddTileState extends State<ManagementAddTile> {
   addNewManagement(String input) {
     setState(() {
       if (input.isNotEmpty) {
+        final epochTime = DateTime.now().millisecondsSinceEpoch;
         managementStatusMap.putIfAbsent(
-            input + '${stringDelemiter}new', () => true);
+            input +
+                dateDelemiter +
+                epochTime.toString() +
+                statusDelemiter +
+                'new',
+            () => true);
         textEditingController.clear();
       }
     });
@@ -105,17 +109,6 @@ class ManagementAddTileState extends State<ManagementAddTile> {
       border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
       labelText: 'Add Management',
       labelStyle: TextStyle(fontSize: 15.0),
-      // suffix: IconButton(
-      //   iconSize: 20,
-      //   padding: EdgeInsets.zero,
-      //   onPressed: () {
-      //     addNewManagement(textEditingController.text);
-      //   },
-      //   icon: Icon(
-      //     Icons.add,
-      //     color: blue,
-      //   ),
-      // ),
     );
   }
 
@@ -125,10 +118,15 @@ class ManagementAddTileState extends State<ManagementAddTile> {
     if (managementStatusMap.isNotEmpty) {
       managementStatusMap.entries.forEach((entry) {
         bool isChecked = entry.value;
-        bool isNew = 'new' == entry.key.split(stringDelemiter).last;
+        bool isNew = 'new' == entry.key.split(statusDelemiter).last;
         String title = isNew
-            ? entry.key.split(stringDelemiter).first + ' (Started Today)'
-            : entry.key.split(stringDelemiter).first;
+            ? entry.key
+                    .split(statusDelemiter)
+                    .first
+                    .split(dateDelemiter)
+                    .first +
+                ' (Started Today)'
+            : entry.key.split(statusDelemiter).first.split(dateDelemiter).first;
 
         expandedListItems.add(Padding(
           padding: const EdgeInsets.only(
@@ -259,7 +257,6 @@ class ManagementAddTileState extends State<ManagementAddTile> {
                 borderRadius: BorderRadius.all(Radius.circular(25.0))),
             color: Colors.white,
             elevation: 0,
-            // margin: EdgeInsets.only(bottom: 10, top: 10),
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: ListView(

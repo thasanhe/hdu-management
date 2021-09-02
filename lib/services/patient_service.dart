@@ -61,7 +61,7 @@ class PatientService {
         "contactNumber": patient.contactNumber,
         "symptomsDate": patient.symptomsDate,
         "pcrRatDate": patient.pcrRatDate,
-        "currentStatus": Utils.patientStatusToString(patient.currentStatus),
+        "currentStatus": patient.currentStatus,
         "dateOfAdmissionHospital": patient.dateOfAdmissionHospital,
         "dateOfDischarge": patient.dateOfDischarge,
         "dateOfTransfer": patient.dateOfTransfer,

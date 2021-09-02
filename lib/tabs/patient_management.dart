@@ -1,12 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:hdu_management/common/common_style.dart';
 import 'package:hdu_management/models/daily_management.dart';
 import 'package:hdu_management/models/patient.dart';
 import 'package:hdu_management/services/patient_service.dart';
-import 'package:hdu_management/widgets/management_add_tile.dart';
-import 'package:hdu_management/widgets/management_tile.dart';
+import 'package:hdu_management/widgets/add_management.dart';
 import 'package:hdu_management/widgets/progress.dart';
+import 'package:hdu_management/widgets/show_management.dart';
 import 'package:intl/intl.dart';
 
 class PatientManagement extends StatefulWidget {
@@ -34,9 +33,9 @@ class _PatientManagementState extends State<PatientManagement> {
     });
   }
 
-  List<ManagementTile> buildHistoricalManagementTiles() {
+  List<ShowManagement> buildHistoricalManagementTiles() {
     return dailyManagementList.map((e) {
-      return ManagementTile(
+      return ShowManagement(
         title: DateFormat('dd-MM-yyyy@hh:mm a').format(e.createdDateTime),
         expandedItemsList: e.management,
       );
@@ -57,7 +56,7 @@ class _PatientManagementState extends State<PatientManagement> {
             topRight: const Radius.circular(25.0),
           ),
         ),
-        child: ManagementAddTile(
+        child: AddManagement(
           bhtNumber: widget.patient.bhtNumber!,
           title: 'Add Management',
           expandedItemsList: dailyManagementList.isNotEmpty
@@ -71,13 +70,33 @@ class _PatientManagementState extends State<PatientManagement> {
 
   List<Widget> buildListView(bool isLoading) {
     List<Widget> items = [];
+    items.add(GestureDetector(
+      onTap: () {
+        _showModalSheet();
+      },
+      child: Card(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(15.0))),
+        color: Color(0xffFFEEE0),
+        elevation: 0,
+        margin: EdgeInsets.only(bottom: 10, top: 10),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Container(
+            alignment: Alignment.center,
+            height: 40,
+            color: Color(0xffFFEEE0),
+            child: Text(
+              "Add Management",
+              style: TextStyle(fontSize: 15),
+            ),
+            // trailing: buildSubTitle(),
+            // children: buildExpandedItems(),
+          ),
+        ),
+      ),
+    ));
     if (!isLoading) {
-      // items.add(TextButton(
-      //   onPressed: () {
-      //     _showModalSheet();
-      //   },
-      //   child: Text('Add management'),
-      // ));
       items.addAll(buildHistoricalManagementTiles());
     }
     return items;
@@ -102,38 +121,6 @@ class _PatientManagementState extends State<PatientManagement> {
               child: ListView(
                 children: buildListView(isLoading),
               ),
-            ),
-            floatingActionButton: Container(
-              padding: EdgeInsets.only(left: 10, right: 10),
-              // color: Colors.black,
-              decoration: BoxDecoration(
-                color: colorBrightYellow,
-                borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(10),
-                    topRight: Radius.circular(10),
-                    bottomLeft: Radius.circular(10),
-                    bottomRight: Radius.circular(10)),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.3),
-                    spreadRadius: 5,
-                    blurRadius: 10,
-                    offset: Offset(0, 3), // changes position of shadow
-                  ),
-                ],
-              ),
-              child: TextButton.icon(
-                  onPressed: () {
-                    _showModalSheet();
-                  },
-                  icon: Icon(
-                    CupertinoIcons.pen,
-                    color: Colors.white,
-                  ),
-                  label: Text(
-                    'Add',
-                    style: TextStyle(color: Colors.white),
-                  )),
             ),
           );
   }

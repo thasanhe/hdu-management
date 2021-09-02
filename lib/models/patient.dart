@@ -18,7 +18,7 @@ class Patient {
 
   DateTime? dateOfAdmissionHospital;
 
-  PatientStatus currentStatus;
+  String currentStatus;
 
   DateTime? dateOfAdmissionHDU;
   DateTime? dateOfDischarge;
@@ -67,7 +67,7 @@ class Patient {
       gender: doc['gender'] == 'male' ? Gender.male : Gender.female,
       symptomsDate: symptomsDate.toDate(),
       pcrRatDate: pcrRatDate.toDate(),
-      currentStatus: Utils.patientStatusFromString(doc['currentStatus']),
+      currentStatus: doc['currentStatus'],
       dateOfAdmissionHDU: dateOfAdmissionHDU.toDate(),
       bedNumber: doc['bedNumber'] != 100000 ? doc['bedNumber'] : null,
     );

@@ -65,7 +65,7 @@ class _AdmissionPageState extends State<Admission> {
         name: this.name!,
         bhtNumber: double.parse(this.bht!),
         gender: this.gender == 'Male' ? Gender.male : Gender.female,
-        currentStatus: PatientStatus.inward,
+        currentStatus: 'inward',
         symptomsDate: this.symptomsDate!,
         pcrRatDate: this.pcrRatDate!,
         bedNumber: this.bedNumber,

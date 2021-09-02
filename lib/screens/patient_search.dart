@@ -80,7 +80,7 @@ class _PatientSearchState extends State<PatientSearch> {
       this.patientsForList!.forEach((patient) {
         listItems.add(PatientsTile(
           patient: patient,
-          isGestureEnabled: true,
+          isSearch: true,
         ));
       });
 
