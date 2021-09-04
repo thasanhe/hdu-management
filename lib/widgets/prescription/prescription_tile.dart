@@ -1,56 +1,46 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:hdu_management/models/prescription.dart';
+import 'package:intl/intl.dart';
 
-class ShowManagement extends StatefulWidget {
+class PrescriptionTile extends StatefulWidget {
   final String title;
-  final List<String> expandedItemsList;
   final IconData? trailingIcon;
+  final DateTime selectedDay;
+  final List<Prescription> prescriptionsList;
 
-  ShowManagement({
+  PrescriptionTile({
     required this.title,
-    required this.expandedItemsList,
     this.trailingIcon,
+    required this.selectedDay,
+    required this.prescriptionsList,
   });
 
   @override
-  ShowManagementState createState() => ShowManagementState();
+  PrescriptionTileState createState() => PrescriptionTileState();
 }
 
-class ShowManagementState extends State<ShowManagement> {
+class PrescriptionTileState extends State<PrescriptionTile> {
   static const String dateDelemiter = '<<DD>>';
 
-  buildExpandedItems() {
-    return widget.expandedItemsList.map((e) {
-      bool isContinued = e.split('<<!!>>').last == 'yes';
-      bool isNew = e.split('<<!!>>').last == 'new';
-
-      final managementWithDate = e.split('<<!!>>').first;
-      final managment = managementWithDate.split(dateDelemiter).first;
-      int offsetDays = 0;
-
-      if (managementWithDate.split(dateDelemiter).length > 1) {
-        print("okokokokok");
-        final epocMillis =
-            int.parse(managementWithDate.split(dateDelemiter)[1]);
-
-        offsetDays = DateTime.now()
-            .difference(DateTime.fromMillisecondsSinceEpoch(epocMillis))
-            .inDays;
-      }
-
-      getManagementStatus() {
-        return isContinued || isNew
-            ? Container(
-                child: Text(
-                'DAY ${offsetDays + 1}',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-              ))
-            : Container(
-                child: Text(
-                  'OMITTED',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-                ),
-              );
+  List<Container> buildExpandedItems() {
+    return widget.prescriptionsList.map((prescription) {
+      Text getManagementStatus() {
+        if (null != prescription.omittedDate) {
+          if (prescription.omittedDate!.isBefore(widget.selectedDay)) {
+            return Text(
+                'OMITTED ON ${DateFormat('dd-MM-yyyy').format(prescription.omittedDate!)}',
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold));
+          }
+        }
+        return Text(
+            'DAY ' +
+                (widget.selectedDay
+                            .difference(prescription.prescribedDate)
+                            .inDays +
+                        1)
+                    .toString(),
+            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold));
       }
 
       return Container(
@@ -65,7 +55,7 @@ class ShowManagementState extends State<ShowManagement> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
               Expanded(
-                child: Text(managment),
+                child: Text(prescription.drug),
               ),
               // Spacer(),
 
@@ -96,8 +86,7 @@ class ShowManagementState extends State<ShowManagement> {
           data: theme,
           child: ExpansionTile(
             backgroundColor: Color(0xffFFEEE0),
-            title: buildTitle(),
-            trailing: buildSubTitle(),
+            title: Text('Drug Chart'),
             children: buildExpandedItems(),
           ),
         ),
@@ -107,7 +96,7 @@ class ShowManagementState extends State<ShowManagement> {
 
   Widget buildSubTitle() {
     return Text(
-      widget.title.split('@').last,
+      widget.title,
       style: TextStyle(fontSize: 12),
     );
   }

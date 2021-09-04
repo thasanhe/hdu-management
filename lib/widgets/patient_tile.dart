@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:hdu_management/models/gender.dart';
 import 'package:hdu_management/models/patient.dart';
 import 'package:hdu_management/screens/patient_profile.dart';
-import 'package:hdu_management/utils/utils.dart';
 
 class PatientsTile extends StatelessWidget {
   final Patient patient;

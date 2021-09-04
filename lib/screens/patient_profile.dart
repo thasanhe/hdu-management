@@ -2,10 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hdu_management/models/on_admission_status.dart';
 import 'package:hdu_management/models/patient.dart';
-import 'package:hdu_management/tabs/investigation_tab.dart';
-import 'package:hdu_management/tabs/routine_management.dart';
+import 'package:hdu_management/tabs/management_details.dart';
 import 'package:hdu_management/services/patient_service.dart';
-import 'package:hdu_management/tabs/routine_parameters.dart';
 import 'package:hdu_management/widgets/patient_tile.dart';
 
 String selectedCategorie = "Adults";
@@ -66,15 +64,6 @@ class _PatientProfileState extends State<PatientProfile>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   titleSpacing: 0,
-      //   iconTheme: IconThemeData(
-      //     color: Colors.black,
-      //   ),
-      //   elevation: 0,
-      //   backgroundColor: Colors.white,
-      // ),
-
       body: Container(
         color: Colors.white,
         padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
@@ -87,7 +76,7 @@ class _PatientProfileState extends State<PatientProfile>
                 isSearch: false,
               ),
               DefaultTabController(
-                length: 4, // length of tabs
+                length: 3, // length of tabs
                 initialIndex: 0,
                 child: Expanded(
                   child: Column(
@@ -114,16 +103,11 @@ class _PatientProfileState extends State<PatientProfile>
                               width: 80,
                             ),
                             Container(
-                              child:
-                                  Tab(text: 'Parameteters'), // taken from hdu
-                              width: 100,
-                            ),
-                            Container(
-                              child: Tab(text: 'Investigations'), //lab reports
-                              width: 100,
-                            ),
-                            Container(
                               child: Tab(text: 'Management'),
+                              width: 100,
+                            ),
+                            Container(
+                              child: Tab(text: 'Charts'),
                               width: 100,
                             ),
                           ],
@@ -135,17 +119,21 @@ class _PatientProfileState extends State<PatientProfile>
                           child: TabBarView(children: <Widget>[
                             Container(
                               child: Center(
-                                child: Text('Display Tab 1',
+                                child: Text('Display Profile',
                                     style: TextStyle(
                                         fontSize: 22,
                                         fontWeight: FontWeight.bold)),
                               ),
                             ),
-                            RoutineParameters(patient: widget.patient),
+                            ManagementDetails(patient: widget.patient),
                             Container(
-                              child: InvestigationTab(),
+                              child: Center(
+                                child: Text('Display Charts',
+                                    style: TextStyle(
+                                        fontSize: 22,
+                                        fontWeight: FontWeight.bold)),
+                              ),
                             ),
-                            RoutineManagement(patient: widget.patient),
                           ]),
                         ),
                       )
@@ -155,23 +143,6 @@ class _PatientProfileState extends State<PatientProfile>
               ),
             ]),
       ),
-      // body: Column(
-      //   children: [
-
-      //     TabBarView(
-      //       children: [
-      //         Container(
-      //           color: Colors.white,
-      //           child:
-      //               isOnAdmStatusFetched ? getProfile() : circularProgress(),
-      //         ),
-      //         Icon(Icons.directions_transit),
-      //         Icon(Icons.directions_bike),
-      //       ],
-      //     ),
-      //   ],
-      // ),
-      // ),
     );
   }
 }

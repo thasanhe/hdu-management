@@ -1,29 +1,30 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:hdu_management/common/common_style.dart';
-import 'package:hdu_management/models/daily_management.dart';
+import 'package:hdu_management/models/prescription.dart';
 import 'package:hdu_management/services/patient_service.dart';
 
-class AddManagement extends StatefulWidget {
+class AddPrescription extends StatefulWidget {
   final double bhtNumber;
   final String title;
-  final List<String> expandedItemsList;
+  final List<Prescription> prescriptionsList;
   final IconData? trailingIcon;
   final VoidCallback onRefresh;
+  final DateTime selectedDate;
 
-  AddManagement({
+  AddPrescription({
     required this.bhtNumber,
     required this.title,
-    required this.expandedItemsList,
+    required this.prescriptionsList,
     this.trailingIcon,
     required this.onRefresh,
+    required this.selectedDate,
   });
 
   @override
-  AddManagementState createState() => AddManagementState();
+  AddPrescriptionState createState() => AddPrescriptionState();
 }
 
-class AddManagementState extends State<AddManagement> {
+class AddPrescriptionState extends State<AddPrescription> {
   late TextEditingController textEditingController;
   late PatientService patientService;
   static const String statusDelemiter = '<<!!>>';
@@ -31,16 +32,21 @@ class AddManagementState extends State<AddManagement> {
 
   Map<String, bool> managementStatusMap = {};
 
+  Map<Prescription, bool> prescriptionStatusMap = {};
+  Map<String, Prescription> drugWisePrescriptionsMap = {};
+
   @override
   initState() {
-    widget.expandedItemsList
-        .where((e) => 'yesnew'.contains(e.split(statusDelemiter).last))
-        .forEach((e) {
-      if ('new' == e.split(statusDelemiter).last) {
-        e = e.split(statusDelemiter).first + '${statusDelemiter}yes';
-      }
-      managementStatusMap.putIfAbsent(e, () => true);
+    widget.prescriptionsList
+        .where((presc) =>
+            presc.omittedDate == null ||
+            presc.omittedDate!.isAfter(widget.selectedDate))
+        .forEach((nonOmittedPresc) {
+      prescriptionStatusMap.putIfAbsent(nonOmittedPresc, () => true);
+      drugWisePrescriptionsMap.putIfAbsent(
+          nonOmittedPresc.drug, () => nonOmittedPresc);
     });
+
     textEditingController = TextEditingController();
     patientService = PatientService();
     super.initState();
@@ -52,36 +58,30 @@ class AddManagementState extends State<AddManagement> {
     super.dispose();
   }
 
-  List<String> prepareFinalManagementList() {
-    final epochTime = DateTime.now().millisecondsSinceEpoch;
-    return managementStatusMap.entries.map((e) {
-      if (e.value) {
-        return e.key;
+  prepareFinalManagementList() {
+    return prescriptionStatusMap.entries.forEach((entry) {
+      if (!entry.value) {
+        entry.key.omittedDate = widget.selectedDate;
       }
-      return e.key.split(statusDelemiter).first +
-          dateDelemiter +
-          epochTime.toString() +
-          '${statusDelemiter}no';
-    }).toList();
+    });
   }
 
-  saveDailyManagement() {
-    final list = prepareFinalManagementList();
-    if (list.isNotEmpty) {
-      DailyManagement dailyManagement = DailyManagement(
-          bhtNumber: widget.bhtNumber,
-          management: list,
-          createdDateTime: DateTime.now());
+  savePrescriptionsList() {
+    prepareFinalManagementList();
+
+    if (prescriptionStatusMap.keys.isNotEmpty) {
+      List<Prescription> toBeSaved = prescriptionStatusMap.keys.toList();
+
       try {
         final SnackBar snackBar =
-            SnackBar(content: Text('Mangement added successfully!'));
+            SnackBar(content: Text('Prescription Added Successfully!'));
 
-        patientService.createPatientManagement(dailyManagement);
+        patientService.createPrescriptions(toBeSaved);
         ScaffoldMessenger.of(context).showSnackBar(snackBar);
         widget.onRefresh();
       } catch (error) {
         final SnackBar snackBar =
-            SnackBar(content: Text('Sormething went wrong! Please try again'));
+            SnackBar(content: Text('Something Went Wrong! Please Try Again'));
         ScaffoldMessenger.of(context).showSnackBar(snackBar);
       }
     }
@@ -90,14 +90,14 @@ class AddManagementState extends State<AddManagement> {
   addNewManagement(String input) {
     setState(() {
       if (input.isNotEmpty) {
-        final epochTime = DateTime.now().millisecondsSinceEpoch;
-        managementStatusMap.putIfAbsent(
-            input +
-                dateDelemiter +
-                epochTime.toString() +
-                statusDelemiter +
-                'new',
-            () => true);
+        final newPresc = Prescription(
+          bhtNumber: widget.bhtNumber,
+          drug: input,
+          createdDateTime: DateTime.now(),
+          prescribedDate: widget.selectedDate,
+        );
+        prescriptionStatusMap.putIfAbsent(newPresc, () => true);
+        drugWisePrescriptionsMap.putIfAbsent(input, () => newPresc);
         textEditingController.clear();
       }
     });
@@ -115,18 +115,10 @@ class AddManagementState extends State<AddManagement> {
   buildExpandedItems() {
     List<Padding> expandedListItems = [];
 
-    if (managementStatusMap.isNotEmpty) {
-      managementStatusMap.entries.forEach((entry) {
+    if (prescriptionStatusMap.isNotEmpty) {
+      prescriptionStatusMap.entries.forEach((entry) {
         bool isChecked = entry.value;
-        bool isNew = 'new' == entry.key.split(statusDelemiter).last;
-        String title = isNew
-            ? entry.key
-                    .split(statusDelemiter)
-                    .first
-                    .split(dateDelemiter)
-                    .first +
-                ' (Started Today)'
-            : entry.key.split(statusDelemiter).first.split(dateDelemiter).first;
+        String title = entry.key.drug;
 
         expandedListItems.add(Padding(
           padding: const EdgeInsets.only(
@@ -142,29 +134,15 @@ class AddManagementState extends State<AddManagement> {
                       : TextStyle(decoration: TextDecoration.lineThrough),
                 ),
               ),
-              // Spacer(),
               Container(
-                child: isNew
-                    ? IconButton(
-                        padding: EdgeInsets.zero,
-                        splashRadius: 20,
-                        onPressed: () {
-                          setState(() {
-                            managementStatusMap.remove(entry.key);
-                          });
-                        },
-                        icon: Icon(
-                          Icons.delete,
-                          color: red,
-                        ))
-                    : Checkbox(
-                        value: isChecked,
-                        onChanged: (val) {
-                          setState(() {
-                            managementStatusMap[entry.key] =
-                                !managementStatusMap[entry.key]!;
-                          });
-                        }),
+                child: Checkbox(
+                    value: isChecked,
+                    onChanged: (val) {
+                      setState(() {
+                        prescriptionStatusMap[entry.key] =
+                            !prescriptionStatusMap[entry.key]!;
+                      });
+                    }),
               )
             ],
           ),
@@ -191,7 +169,6 @@ class AddManagementState extends State<AddManagement> {
 
   @override
   Widget build(BuildContext context) {
-    print(widget.expandedItemsList);
     return Column(
       children: [
         SizedBox(
@@ -243,7 +220,7 @@ class AddManagementState extends State<AddManagement> {
                         color: Colors.black, fontWeight: FontWeight.bold),
                   ),
                   onPressed: () {
-                    saveDailyManagement();
+                    savePrescriptionsList();
                     Navigator.pop(context);
                   },
                 ),

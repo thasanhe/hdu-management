@@ -35,6 +35,7 @@ dependencies:
   textfield_tags: ^1.4.2
   material_tag_editor: ^0.1.1
   intl: ^0.17.0
+  table_calendar: ^3.0.2
 
 dev_dependencies:
   flutter_test:

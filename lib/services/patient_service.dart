@@ -1,16 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:hdu_management/models/daily_management.dart';
+import 'package:hdu_management/models/drug_chart.dart';
 import 'package:hdu_management/models/gender.dart';
 import 'package:hdu_management/models/on_admission_status.dart';
+import 'package:hdu_management/models/parameters.dart';
 import 'package:hdu_management/models/patient.dart';
-import 'package:hdu_management/utils/utils.dart';
+import 'package:hdu_management/models/prescription.dart';
 
 class PatientService {
   final patientsRef = FirebaseFirestore.instance.collection('patients');
   final onAdmissionStatusRef =
       FirebaseFirestore.instance.collection('on_admission_status');
-  final dailyManagementRef =
-      FirebaseFirestore.instance.collection('daily_management');
+  final parametersRef = FirebaseFirestore.instance.collection('parameters');
+  final prescriptionRef = FirebaseFirestore.instance.collection('prescription');
 
   Future<List<Patient>> getAllPatients() async {
     List<Patient> patientList = [];
@@ -32,20 +33,52 @@ class PatientService {
     return status;
   }
 
-  Future<List<DailyManagement>>
-      getDailyManagementByPatientOrderedByTimeStampDesc(
-          double bhtNumber) async {
-    List<DailyManagement> dailyManagementList = [];
-    final querySnapshot = await dailyManagementRef
+  Future<List<Prescription>> getPrescriptionByPatientAndSelectdTime(
+      double bhtNumber, DateTime date) async {
+    List<Prescription> prescriptionsList = [];
+    var start = date;
+    var end = start.add(Duration(days: 1));
+
+    final querySnapshot = await prescriptionRef
         .where('bhtNumber', isEqualTo: bhtNumber)
+        .where('prescribedDate', isLessThan: Timestamp.fromDate(end))
+        .orderBy('prescribedDate', descending: true)
+        .get();
+
+    querySnapshot.docs.forEach((doc) {
+      prescriptionsList.add(Prescription.fromDocument(doc));
+    });
+
+    print('Retrieved prescriptions');
+    print(prescriptionsList);
+    return prescriptionsList;
+  }
+
+  Future<List<Parameters>> getParametersByPatientAndTimeStampDesc(
+      double bhtNumber, DateTime date) async {
+    List<Parameters> parametersList = [];
+    var start = date;
+    var end = start.add(Duration(days: 1));
+
+    print('getting params');
+    print(bhtNumber);
+    print(date.toString());
+
+    final querySnapshot = await parametersRef
+        .where('bhtNumber', isEqualTo: bhtNumber)
+        .where('createdDateTime',
+            isGreaterThanOrEqualTo: Timestamp.fromDate(start))
+        .where('createdDateTime', isLessThan: Timestamp.fromDate(end))
         .orderBy('createdDateTime', descending: true)
         .get();
 
     querySnapshot.docs.forEach((doc) {
-      dailyManagementList.add(DailyManagement.fromDocument(doc));
+      parametersList.add(Parameters.fromDocument(doc));
     });
-    print('Retrieved daily managements');
-    return dailyManagementList;
+
+    print('Retrieved parameters');
+    print(parametersList);
+    return parametersList;
   }
 
   Future<String> createPatient(Patient patient) async {
@@ -97,20 +130,43 @@ class PatientService {
     return Future.value(savedStatus.bhtNumber.toString());
   }
 
-  Future<String> createPatientManagement(
-      DailyManagement dailyManagement) async {
-    final docId = dailyManagement.bhtNumber.toString() +
-        '-' +
-        dailyManagement.createdDateTime.toIso8601String();
-    await dailyManagementRef.doc(docId).set({
-      "bhtNumber": dailyManagement.bhtNumber,
-      "management": dailyManagement.management,
-      "createdDateTime": dailyManagement.createdDateTime,
+  Future<void> createPrescriptions(List<Prescription> prescriptionList) async {
+    var batch = FirebaseFirestore.instance.batch();
+
+    prescriptionList.forEach((prescription) {
+      final docId = prescription.bhtNumber.toString() +
+          '-' +
+          prescription.drug +
+          '-' +
+          prescription.prescribedDate.toIso8601String();
+      batch.set(prescriptionRef.doc(docId), {
+        "bhtNumber": prescription.bhtNumber,
+        "drug": prescription.drug,
+        "createdDateTime": prescription.createdDateTime,
+        "omittedDate": prescription.omittedDate,
+        "prescribedDate": prescription.prescribedDate,
+      });
+    });
+    await batch.commit();
+  }
+
+  Future<String> createParameters(Parameters paramerters) async {
+    final docId =
+        paramerters.bhtNumber.toString() + '-' + paramerters.slot.toString();
+    await parametersRef.doc(docId).set({
+      "bhtNumber": paramerters.bhtNumber,
+      "createdDateTime": paramerters.createdDateTime,
+      "slot": paramerters.slot,
+      "bp": paramerters.bp,
+      "cbs": paramerters.cbs,
+      "pr": paramerters.pr,
+      "rr": paramerters.rr,
+      "spo2": paramerters.spo2,
     });
 
-    final status = await dailyManagementRef.doc(docId).get();
-    DailyManagement savedManagement = DailyManagement.fromDocument(status);
-    print('Created daily management');
-    return Future.value(savedManagement.bhtNumber.toString());
+    final status = await parametersRef.doc(docId).get();
+    Parameters savedParameters = Parameters.fromDocument(status);
+    print('Created parameters');
+    return Future.value(savedParameters.bhtNumber.toString());
   }
 }
