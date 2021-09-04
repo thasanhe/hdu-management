@@ -2,37 +2,31 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Parameters {
   double bhtNumber;
-
-  double? bp;
-  double? cbs;
-  double? pr;
-  double? rr;
-  double? spo2;
+  String name;
+  double value;
   int slot;
 
   DateTime createdDateTime;
+  DateTime measuredDate;
   Parameters({
     required this.bhtNumber,
-    this.bp,
-    this.cbs,
-    this.pr,
-    this.rr,
-    this.spo2,
+    required this.name,
+    required this.value,
     required this.slot,
     required this.createdDateTime,
+    required this.measuredDate,
   });
 
   factory Parameters.fromDocument(DocumentSnapshot doc) {
     Timestamp createdTimestamp = doc['createdDateTime'] as Timestamp;
+    Timestamp measuredDate = doc['measuredDate'] as Timestamp;
 
     Parameters temp = Parameters(
       bhtNumber: doc['bhtNumber'],
       createdDateTime: createdTimestamp.toDate(),
-      bp: doc['bp'],
-      cbs: doc['cbs'],
-      pr: doc['pr'],
-      rr: doc['rr'],
-      spo2: doc['spo2'],
+      measuredDate: measuredDate.toDate(),
+      name: doc['name'],
+      value: doc['value'],
       slot: doc['slot'],
     );
 

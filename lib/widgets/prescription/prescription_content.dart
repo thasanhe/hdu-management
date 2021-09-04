@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:hdu_management/models/drug_chart.dart';
 import 'package:hdu_management/models/patient.dart';
 import 'package:hdu_management/models/prescription.dart';
-import 'package:hdu_management/widgets/prescription/prescription_tile.dart';
+import 'package:hdu_management/widgets/prescription/drug_chart_tile.dart';
 import 'package:intl/intl.dart';
 
 class PrescriptionContent extends StatefulWidget {

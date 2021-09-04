@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:hdu_management/models/drug_chart.dart';
 import 'package:hdu_management/models/gender.dart';
 import 'package:hdu_management/models/on_admission_status.dart';
 import 'package:hdu_management/models/parameters.dart';
@@ -150,23 +149,24 @@ class PatientService {
     await batch.commit();
   }
 
-  Future<String> createParameters(Parameters paramerters) async {
-    final docId =
-        paramerters.bhtNumber.toString() + '-' + paramerters.slot.toString();
-    await parametersRef.doc(docId).set({
-      "bhtNumber": paramerters.bhtNumber,
-      "createdDateTime": paramerters.createdDateTime,
-      "slot": paramerters.slot,
-      "bp": paramerters.bp,
-      "cbs": paramerters.cbs,
-      "pr": paramerters.pr,
-      "rr": paramerters.rr,
-      "spo2": paramerters.spo2,
-    });
+  Future<void> createParameters(List<Parameters> paramertersList) async {
+    var batch = FirebaseFirestore.instance.batch();
 
-    final status = await parametersRef.doc(docId).get();
-    Parameters savedParameters = Parameters.fromDocument(status);
-    print('Created parameters');
-    return Future.value(savedParameters.bhtNumber.toString());
+    paramertersList.forEach((paramerters) {
+      final docId = paramerters.bhtNumber.toString() +
+          '-' +
+          paramerters.slot.toString() +
+          '-' +
+          paramerters.createdDateTime.toIso8601String();
+      batch.set(prescriptionRef.doc(docId), {
+        "bhtNumber": paramerters.bhtNumber,
+        "createdDateTime": paramerters.createdDateTime,
+        "measuredDate": paramerters.measuredDate,
+        "slot": paramerters.slot,
+        "name": paramerters.name,
+        "value": paramerters.value,
+      });
+    });
+    await batch.commit();
   }
 }

@@ -38,17 +38,17 @@ class _ManagementDetailsContainerState
         padding: EdgeInsets.only(bottom: 10),
         alignment: Alignment.topCenter,
         child: ListView(children: [
+          ParameterContent(
+            parametersList: widget.parametersList,
+            patient: widget.patient,
+            selectedDay: widget.selectedDay,
+          ),
           PrescriptionContent(
             drugsListList: widget.drugsListList,
             prescriptionsList: widget.prescriptionsList,
             patient: widget.patient,
             selectedDay: widget.selectedDay,
           ),
-          ParameterContent(
-            parametersList: widget.parametersList,
-            patient: widget.patient,
-            selectedDay: widget.selectedDay,
-          )
         ]),
       ),
     );

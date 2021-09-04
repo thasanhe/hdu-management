@@ -23,7 +23,7 @@ class _ParameterContentState extends State<ParameterContent> {
   @override
   Widget build(BuildContext context) {
     print('parameter content');
-    print(widget.parametersList);
+    print(widget.parametersList.length);
     return ParameterTile(
       parametersList: widget.parametersList,
     );
