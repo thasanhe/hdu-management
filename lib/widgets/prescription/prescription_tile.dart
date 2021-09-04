@@ -87,7 +87,9 @@ class PrescriptionTileState extends State<PrescriptionTile> {
           child: ExpansionTile(
             backgroundColor: Color(0xffFFEEE0),
             title: Text('Drug Chart'),
-            children: buildExpandedItems(),
+            children: widget.prescriptionsList.isNotEmpty
+                ? buildExpandedItems()
+                : [Text('No data')],
           ),
         ),
       ),

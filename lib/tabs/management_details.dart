@@ -106,7 +106,7 @@ class _ManagementDetailsState extends State<ManagementDetails> {
           ),
           title: Container(
             padding: EdgeInsets.all(20),
-            child: Text(DateFormat.yMMMMEEEEd('en_US').format(date)),
+            child: Text(DateFormat('MMMMEEEEd').format(date)),
           ),
           content: Container(
             width: 50,
