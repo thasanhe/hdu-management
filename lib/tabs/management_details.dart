@@ -19,11 +19,22 @@ class ManagementDetails extends StatefulWidget {
 }
 
 class _ManagementDetailsState extends State<ManagementDetails> {
+  final _formStateKey = GlobalKey<FormState>();
+
   late PatientService patientService;
 
   late List<DrugChart> drugsListList = [];
   late List<Parameters> parametersList = [];
   late List<Prescription> prescriptionsList = [];
+
+  double? bpValue;
+
+  Map<String, double> parameterMap = {};
+
+  double? cbsValue;
+  double? prValue;
+  double? rrValue;
+  double? spo2Value;
 
   bool isLoading = true;
 
@@ -56,6 +67,47 @@ class _ManagementDetailsState extends State<ManagementDetails> {
       this.parametersList = retrievedParameters;
       isLoading = false;
     });
+  }
+
+  Parameters? prepareParametersToSave(double? value, String name) {
+    if (value == null) {
+      return null;
+    }
+    return Parameters(
+      bhtNumber: widget.patient.bhtNumber!,
+      name: name,
+      value: value,
+      slot: 0,
+      createdDateTime: DateTime.now(),
+      measuredDate:
+          DateTime(_selectedDay.year, _selectedDay.month, _selectedDay.day),
+    );
+  }
+
+  saveParameters() {
+    final formState = _formStateKey.currentState;
+    formState!.save();
+
+    List<Parameters?> temp = [];
+
+    List<Parameters> toBeSaved = [];
+    temp.add(prepareParametersToSave(bpValue, 'bp'));
+    temp.add(prepareParametersToSave(cbsValue, 'cbs'));
+    temp.add(prepareParametersToSave(spo2Value, 'spo2'));
+    temp.add(prepareParametersToSave(rrValue, 'rr'));
+    temp.add(prepareParametersToSave(prValue, 'pr'));
+
+    toBeSaved = temp
+        .where((element) => double.nan != element!.value)
+        .toList()
+        .whereType<Parameters>()
+        .toList();
+
+    // toBeSaved = temp.whereType<Parameters>().toList();
+
+    print(toBeSaved);
+
+    patientService.createParameters(toBeSaved);
   }
 
   void _showModalSheet() {
@@ -92,6 +144,146 @@ class _ManagementDetailsState extends State<ManagementDetails> {
     loadPrescriptions();
   }
 
+  getInputDecoration(String label, {String? hint}) {
+    return InputDecoration(
+      isDense: true,
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+      labelText: label,
+      labelStyle: TextStyle(fontSize: 15.0),
+      hintText: hint,
+    );
+  }
+
+  void _showParameterInputDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          titlePadding: EdgeInsets.zero,
+          contentPadding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(
+              Radius.circular(20),
+            ),
+          ),
+          title: Container(
+            padding: EdgeInsets.all(20),
+            child: Text('Enter parameters'),
+          ),
+          content: Container(
+            height: 225,
+            child: Form(
+              key: _formStateKey,
+              autovalidateMode: AutovalidateMode.always,
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    SizedBox(
+                      height: 15,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          width: 100,
+                          child: TextFormField(
+                            onSaved: (input) {
+                              bpValue = input!.isNotEmpty
+                                  ? double.parse(input)
+                                  : double.nan;
+                            },
+                            decoration: getInputDecoration("BP"),
+                            keyboardType:
+                                TextInputType.numberWithOptions(decimal: true),
+                          ),
+                        ),
+                        Container(
+                          width: 100,
+                          child: TextFormField(
+                            onSaved: (input) {
+                              cbsValue = input!.isNotEmpty
+                                  ? double.parse(input)
+                                  : double.nan;
+                            },
+                            decoration: getInputDecoration("CBS"),
+                            keyboardType:
+                                TextInputType.numberWithOptions(decimal: true),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 15,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          width: 100,
+                          child: TextFormField(
+                            onSaved: (input) {
+                              prValue = input!.isNotEmpty
+                                  ? double.parse(input)
+                                  : double.nan;
+                            },
+                            decoration: getInputDecoration("PR"),
+                            keyboardType:
+                                TextInputType.numberWithOptions(decimal: true),
+                          ),
+                        ),
+                        Container(
+                          width: 100,
+                          child: TextFormField(
+                            onSaved: (input) {
+                              rrValue = input!.isNotEmpty
+                                  ? double.parse(input)
+                                  : double.nan;
+                            },
+                            decoration: getInputDecoration("RR"),
+                            keyboardType:
+                                TextInputType.numberWithOptions(decimal: true),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 15,
+                    ),
+                    TextFormField(
+                      onSaved: (input) {
+                        spo2Value = input!.isNotEmpty
+                            ? double.parse(input)
+                            : double.nan;
+                      },
+                      decoration: getInputDecoration("SPO2"),
+                      keyboardType:
+                          TextInputType.numberWithOptions(decimal: true),
+                    ),
+                    SizedBox(
+                      height: 15,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text('Cancel')),
+            TextButton(
+                onPressed: () {
+                  saveParameters();
+                },
+                child: Text('Add'))
+          ],
+        );
+      },
+    );
+  }
+
   void _showDialog(DateTime date) {
     showDialog(
       context: context,
@@ -115,7 +307,13 @@ class _ManagementDetailsState extends State<ManagementDetails> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Add Parameters'),
+                GestureDetector(
+                  child: Text('Add Parameters'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _showParameterInputDialog();
+                  },
+                ),
                 Divider(
                   thickness: 2,
                 ),

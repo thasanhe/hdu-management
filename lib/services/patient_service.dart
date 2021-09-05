@@ -157,8 +157,10 @@ class PatientService {
           '-' +
           paramerters.slot.toString() +
           '-' +
+          paramerters.name +
+          '-' +
           paramerters.createdDateTime.toIso8601String();
-      batch.set(prescriptionRef.doc(docId), {
+      batch.set(parametersRef.doc(docId), {
         "bhtNumber": paramerters.bhtNumber,
         "createdDateTime": paramerters.createdDateTime,
         "measuredDate": paramerters.measuredDate,

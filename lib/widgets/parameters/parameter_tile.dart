@@ -23,20 +23,67 @@ class ParameterTileState extends State<ParameterTile> {
   TableRow getTableHeader() {
     return TableRow(
       children: [
-        Text('Parameter'),
-        Text('6 AM'),
-        Text('12 PM'),
-        Text('6 PM'),
+        Text(
+          'Parameter',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        Text(
+          '6 AM',
+          style: TextStyle(fontWeight: FontWeight.bold),
+          textAlign: TextAlign.right,
+        ),
+        Text(
+          '12 PM',
+          style: TextStyle(fontWeight: FontWeight.bold),
+          textAlign: TextAlign.right,
+        ),
+        Text(
+          '6 PM',
+          style: TextStyle(fontWeight: FontWeight.bold),
+          textAlign: TextAlign.right,
+        ),
       ],
     );
+  }
+
+  addVerticalSpace() {
+    return TableRow(children: [
+      SizedBox(height: 15), //SizeBox Widget
+      SizedBox(height: 15),
+      SizedBox(height: 15),
+      SizedBox(height: 15),
+    ]);
+  }
+
+  addDivider() {
+    return TableRow(children: [
+      Divider(
+        thickness: 2,
+        color: Colors.red,
+      ),
+      Divider(
+        thickness: 2,
+        color: Colors.red,
+      ),
+      Divider(
+        thickness: 2,
+        color: Colors.red,
+      ),
+      Divider(
+        thickness: 2,
+        color: Colors.red,
+      ),
+    ]);
   }
 
   List<TableRow> getParameterRows() {
     List<TableRow> tableRowList = [];
 
     parameterNames.forEach((param) {
-      List<Text> rowItems = [];
-      rowItems.add(Text(param.toUpperCase()));
+      List<Widget> rowItems = [];
+      rowItems.add(Container(
+        child: Text(param.toUpperCase()),
+      ));
 
       var parameters = widget.parametersList
           .where((element) => element.name == param)
@@ -45,14 +92,23 @@ class ParameterTileState extends State<ParameterTile> {
       slots.forEach((slot) {
         var slotItems = parameters.where((element) => element.slot == slot);
         if (slotItems.isNotEmpty) {
-          rowItems.add(Text(slotItems.first.value.toString()));
+          rowItems.add(Text(
+            slotItems.first.value.toString(),
+            textAlign: TextAlign.right,
+          ));
         } else {
-          rowItems.add(Text('-'));
+          rowItems.add(Text(
+            '-',
+            textAlign: TextAlign.right,
+          ));
         }
       });
-      tableRowList.add(TableRow(
-        children: rowItems,
-      ));
+      tableRowList.add(
+        TableRow(
+          children: rowItems,
+        ),
+      );
+      tableRowList.add(addVerticalSpace());
     });
 
     return tableRowList;
@@ -61,6 +117,7 @@ class ParameterTileState extends State<ParameterTile> {
   List<TableRow> getTableRows() {
     List<TableRow> tableRows = [];
     tableRows.add(getTableHeader());
+    tableRows.add(addDivider());
     tableRows.addAll(getParameterRows());
 
     return tableRows;
@@ -73,10 +130,6 @@ class ParameterTileState extends State<ParameterTile> {
                 right: 16.0, left: 16.0, top: 8.0, bottom: 8.0),
             child: Table(
               defaultColumnWidth: FlexColumnWidth(),
-              // border: TableBorder.symmetric(
-              //   inside: BorderSide(width: 1, color: Colors.grey),
-              // ),
-              // outside: BorderSide(width: 1)),
               children: getTableRows(),
             ),
           )

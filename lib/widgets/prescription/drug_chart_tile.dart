@@ -44,10 +44,10 @@ class PrescriptionTileState extends State<PrescriptionTile> {
       }
 
       return Container(
-        decoration: BoxDecoration(
-          border:
-              Border(bottom: BorderSide(width: 1, color: Colors.grey[400]!)),
-        ),
+        // decoration: BoxDecoration(
+        //   border:
+        //       Border(bottom: BorderSide(width: 1, color: Colors.grey[400]!)),
+        // ),
         child: Padding(
           padding: const EdgeInsets.only(
               right: 16.0, left: 16.0, top: 8.0, bottom: 8.0),
