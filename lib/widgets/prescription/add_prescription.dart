@@ -236,9 +236,12 @@ class AddPrescriptionState extends State<AddPrescription> {
             elevation: 0,
             child: Padding(
               padding: const EdgeInsets.all(8.0),
-              child: ListView(
-                shrinkWrap: true,
-                children: buildExpandedItems(),
+              child: Scrollbar(
+                isAlwaysShown: true,
+                child: ListView(
+                  shrinkWrap: true,
+                  children: buildExpandedItems(),
+                ),
               ),
             ),
           ),
