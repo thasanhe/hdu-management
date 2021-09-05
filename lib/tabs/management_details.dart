@@ -214,6 +214,8 @@ class _ManagementDetailsState extends State<ManagementDetails> {
                             },
                             decoration: getInputDecorationTextFormField("BP",
                                 hint: 'sys.dia'),
+                            keyboardType:
+                                TextInputType.numberWithOptions(decimal: true),
                           ),
                         ),
                       ],
