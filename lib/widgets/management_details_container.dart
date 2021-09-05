@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:hdu_management/models/drug_chart.dart';
 import 'package:hdu_management/models/parameters.dart';
 import 'package:hdu_management/models/patient.dart';
 import 'package:hdu_management/models/prescription.dart';
@@ -10,14 +9,12 @@ import 'package:hdu_management/widgets/prescription/prescription_content.dart';
 class ManagementDetailsContainer extends StatefulWidget {
   final Patient patient;
   final DateTime selectedDay;
-  final List<DrugChart> drugsListList;
   final List<Parameters> parametersList;
   final List<Prescription> prescriptionsList;
   const ManagementDetailsContainer({
     Key? key,
     required this.patient,
     required this.selectedDay,
-    required this.drugsListList,
     required this.parametersList,
     required this.prescriptionsList,
   }) : super(key: key);
@@ -31,7 +28,7 @@ class _ManagementDetailsContainerState
     extends State<ManagementDetailsContainer> {
   @override
   Widget build(BuildContext context) {
-    print('mangement content');
+    print('refreshed managemnet content container');
     return Expanded(
       child: Container(
         color: Colors.white,
@@ -44,7 +41,6 @@ class _ManagementDetailsContainerState
             selectedDay: widget.selectedDay,
           ),
           PrescriptionContent(
-            drugsListList: widget.drugsListList,
             prescriptionsList: widget.prescriptionsList,
             patient: widget.patient,
             selectedDay: widget.selectedDay,

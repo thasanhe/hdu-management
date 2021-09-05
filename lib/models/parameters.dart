@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class Parameters {
   double bhtNumber;
   String name;
-  double value;
+  String value;
   int slot;
 
   DateTime createdDateTime;

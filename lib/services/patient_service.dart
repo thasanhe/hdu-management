@@ -53,7 +53,7 @@ class PatientService {
     return prescriptionsList;
   }
 
-  Future<List<Parameters>> getParametersByPatientAndTimeStampDesc(
+  Future<List<Parameters>> getParametersByPatientAndMeasuredDate(
       double bhtNumber, DateTime date) async {
     List<Parameters> parametersList = [];
     var start = date;
@@ -65,10 +65,9 @@ class PatientService {
 
     final querySnapshot = await parametersRef
         .where('bhtNumber', isEqualTo: bhtNumber)
-        .where('createdDateTime',
+        .where('measuredDate',
             isGreaterThanOrEqualTo: Timestamp.fromDate(start))
-        .where('createdDateTime', isLessThan: Timestamp.fromDate(end))
-        .orderBy('createdDateTime', descending: true)
+        .where('measuredDate', isLessThan: Timestamp.fromDate(end))
         .get();
 
     querySnapshot.docs.forEach((doc) {
@@ -147,6 +146,8 @@ class PatientService {
       });
     });
     await batch.commit();
+    await Future.delayed(Duration(seconds: 2));
+    print('created prescriptions');
   }
 
   Future<void> createParameters(List<Parameters> paramertersList) async {
@@ -155,11 +156,12 @@ class PatientService {
     paramertersList.forEach((paramerters) {
       final docId = paramerters.bhtNumber.toString() +
           '-' +
-          paramerters.slot.toString() +
-          '-' +
           paramerters.name +
           '-' +
-          paramerters.createdDateTime.toIso8601String();
+          paramerters.measuredDate.toIso8601String() +
+          '-' +
+          paramerters.slot.toString();
+
       batch.set(parametersRef.doc(docId), {
         "bhtNumber": paramerters.bhtNumber,
         "createdDateTime": paramerters.createdDateTime,
@@ -170,5 +172,73 @@ class PatientService {
       });
     });
     await batch.commit();
+    print('created parameters');
   }
 }
+
+  // Future<void> createParameters(List<Parameters> paramertersList) async {
+  //   var updateBatch = FirebaseFirestore.instance.batch();
+  //   var createBatch = FirebaseFirestore.instance.batch();
+
+  //   paramertersList.forEach((paramerters) {
+  //     final docId = paramerters.bhtNumber.toString() +
+  //         '-' +
+  //         paramerters.name +
+  //         '-' +
+  //         paramerters.measuredDate.toIso8601String() +
+  //         '-' +
+  //         paramerters.slot.toString();
+
+  //     // createBatch.set(parametersRef.doc(docId), {
+  //     //   "bhtNumber": paramerters.bhtNumber,
+  //     //   "createdDateTime": paramerters.createdDateTime,
+  //     //   "measuredDate": paramerters.measuredDate,
+  //     //   "slot": paramerters.slot,
+  //     //   "name": paramerters.name,
+  //     //   "value": paramerters.value,
+  //     // });
+
+  //     updateBatch.update(parametersRef.doc(docId), {
+  //       "bhtNumber": paramerters.bhtNumber,
+  //       "createdDateTime": paramerters.createdDateTime,
+  //       "measuredDate": paramerters.measuredDate,
+  //       "slot": paramerters.slot,
+  //       "name": paramerters.name,
+  //       "value": paramerters.value,
+  //     });
+  //   });
+
+  //   try {
+  //     await updateBatch.commit();
+  //   } catch (e) {
+  //     paramertersList.forEach((paramerters) {
+  //       final docId = paramerters.bhtNumber.toString() +
+  //           '-' +
+  //           paramerters.name +
+  //           '-' +
+  //           paramerters.measuredDate.toIso8601String() +
+  //           '-' +
+  //           paramerters.slot.toString();
+
+  //       createBatch.set(parametersRef.doc(docId), {
+  //         "bhtNumber": paramerters.bhtNumber,
+  //         "createdDateTime": paramerters.createdDateTime,
+  //         "measuredDate": paramerters.measuredDate,
+  //         "slot": paramerters.slot,
+  //         "name": paramerters.name,
+  //         "value": paramerters.value,
+  //       });
+
+  //       // updateBatch.update(parametersRef.doc(docId), {
+  //       //   "bhtNumber": paramerters.bhtNumber,
+  //       //   "createdDateTime": paramerters.createdDateTime,
+  //       //   "measuredDate": paramerters.measuredDate,
+  //       //   "slot": paramerters.slot,
+  //       //   "name": paramerters.name,
+  //       //   "value": paramerters.value,
+  //       // });
+  //     });
+  //     await createBatch.commit();
+  //   }
+  // }
+// }

@@ -18,6 +18,14 @@ class ParameterTile extends StatefulWidget {
 class ParameterTileState extends State<ParameterTile> {
   Map<String, List<double>> paramNameWiseValues = {};
   final parameterNames = ['bp', 'cbs', 'pr', 'rr', 'spo2'];
+  Map<String, String> parameterUnitsMap = {
+    'bp': '(mmHg)',
+    'cbs': '(mg/dl)',
+    'pr': '(per min)',
+    'rr': '(per min)',
+    'spo2': '(%)',
+  };
+
   final slots = [0, 1, 2];
 
   TableRow getTableHeader() {
@@ -59,19 +67,19 @@ class ParameterTileState extends State<ParameterTile> {
     return TableRow(children: [
       Divider(
         thickness: 2,
-        color: Colors.red,
+        color: Colors.grey,
       ),
       Divider(
         thickness: 2,
-        color: Colors.red,
+        color: Colors.grey,
       ),
       Divider(
         thickness: 2,
-        color: Colors.red,
+        color: Colors.grey,
       ),
       Divider(
         thickness: 2,
-        color: Colors.red,
+        color: Colors.grey,
       ),
     ]);
   }
@@ -82,7 +90,7 @@ class ParameterTileState extends State<ParameterTile> {
     parameterNames.forEach((param) {
       List<Widget> rowItems = [];
       rowItems.add(Container(
-        child: Text(param.toUpperCase()),
+        child: Text(param.toUpperCase() + ' ' + parameterUnitsMap[param]!),
       ));
 
       var parameters = widget.parametersList
@@ -139,6 +147,7 @@ class ParameterTileState extends State<ParameterTile> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context).copyWith(dividerColor: Colors.transparent);
+    print('is refreshed!!!');
 
     return Card(
       shape: RoundedRectangleBorder(

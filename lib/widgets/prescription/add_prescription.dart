@@ -87,7 +87,7 @@ class AddPrescriptionState extends State<AddPrescription> {
     }
   }
 
-  addNewManagement(String input) {
+  addNewPrescription(String input) {
     setState(() {
       if (input.isNotEmpty) {
         final newPresc = Prescription(
@@ -160,7 +160,7 @@ class AddPrescriptionState extends State<AddPrescription> {
       child: TextFormField(
         controller: textEditingController,
         decoration: getInputDecoration(),
-        onFieldSubmitted: addNewManagement,
+        onFieldSubmitted: addNewPrescription,
       ),
     ));
 

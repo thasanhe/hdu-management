@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:hdu_management/models/drug_chart.dart';
+import 'package:hdu_management/common/common_style.dart';
 import 'package:hdu_management/models/parameters.dart';
 import 'package:hdu_management/models/patient.dart';
 import 'package:hdu_management/models/prescription.dart';
@@ -21,96 +21,81 @@ class ManagementDetails extends StatefulWidget {
 class _ManagementDetailsState extends State<ManagementDetails> {
   final _formStateKey = GlobalKey<FormState>();
 
-  late PatientService patientService;
+  late PatientService _patientService;
 
-  late List<DrugChart> drugsListList = [];
-  late List<Parameters> parametersList = [];
-  late List<Prescription> prescriptionsList = [];
+  late List<Parameters> _parametersList = [];
+  late List<Prescription> _prescriptionsList = [];
 
-  double? bpValue;
+  Map<String, String> _parameterInputMap = {};
+  int _selectedSlot = -1;
 
-  Map<String, double> parameterMap = {};
-
-  double? cbsValue;
-  double? prValue;
-  double? rrValue;
-  double? spo2Value;
-
-  bool isLoading = true;
+  bool _isLoadingPrescriptions = true;
+  bool _isLoadingParameters = true;
 
   DateTime _selectedDay =
       DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+
   DateTime _focusedDay =
       DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
 
   final GlobalKey<ScaffoldState> _scaffoldkey = new GlobalKey<ScaffoldState>();
 
-  loadPrescriptions() async {
-    isLoading = true;
+  final _textEditingController = TextEditingController();
+
+  void _loadPrescriptions() async {
+    _isLoadingPrescriptions = true;
+    await Future.delayed(Duration(milliseconds: 200));
     final retrievedPrescriptions =
-        await patientService.getPrescriptionByPatientAndSelectdTime(
+        await _patientService.getPrescriptionByPatientAndSelectdTime(
             widget.patient.bhtNumber!,
             DateTime(_selectedDay.year, _selectedDay.month, _selectedDay.day));
     setState(() {
-      this.prescriptionsList = retrievedPrescriptions;
-      isLoading = false;
+      this._prescriptionsList = retrievedPrescriptions;
+      _isLoadingPrescriptions = false;
     });
   }
 
-  loadParameters() async {
-    // isLoading = true;
+  void _loadParameters() async {
+    _isLoadingParameters = true;
+    await Future.delayed(Duration(milliseconds: 200));
     final retrievedParameters =
-        await patientService.getParametersByPatientAndTimeStampDesc(
+        await _patientService.getParametersByPatientAndMeasuredDate(
             widget.patient.bhtNumber!,
             DateTime(_selectedDay.year, _selectedDay.month, _selectedDay.day));
     setState(() {
-      this.parametersList = retrievedParameters;
-      isLoading = false;
+      this._parametersList = retrievedParameters;
+      _isLoadingParameters = false;
     });
   }
 
-  Parameters? prepareParametersToSave(double? value, String name) {
-    if (value == null) {
-      return null;
-    }
-    return Parameters(
-      bhtNumber: widget.patient.bhtNumber!,
-      name: name,
-      value: value,
-      slot: 0,
-      createdDateTime: DateTime.now(),
-      measuredDate:
-          DateTime(_selectedDay.year, _selectedDay.month, _selectedDay.day),
-    );
-  }
-
-  saveParameters() {
+  void _saveParameters() {
     final formState = _formStateKey.currentState;
-    formState!.save();
 
-    List<Parameters?> temp = [];
+    if (formState!.validate()) {
+      formState.save();
 
-    List<Parameters> toBeSaved = [];
-    temp.add(prepareParametersToSave(bpValue, 'bp'));
-    temp.add(prepareParametersToSave(cbsValue, 'cbs'));
-    temp.add(prepareParametersToSave(spo2Value, 'spo2'));
-    temp.add(prepareParametersToSave(rrValue, 'rr'));
-    temp.add(prepareParametersToSave(prValue, 'pr'));
+      final toBeSaved = _parameterInputMap.entries.map((e) {
+        return Parameters(
+          bhtNumber: widget.patient.bhtNumber!,
+          name: e.key,
+          value: e.value,
+          slot: _selectedSlot,
+          createdDateTime: DateTime.now(),
+          measuredDate:
+              DateTime(_selectedDay.year, _selectedDay.month, _selectedDay.day),
+        );
+      }).toList();
 
-    toBeSaved = temp
-        .where((element) => double.nan != element!.value)
-        .toList()
-        .whereType<Parameters>()
-        .toList();
+      _patientService.createParameters(toBeSaved);
 
-    // toBeSaved = temp.whereType<Parameters>().toList();
-
-    print(toBeSaved);
-
-    patientService.createParameters(toBeSaved);
+      _loadParameters();
+      _parameterInputMap = {};
+      formState.reset();
+      Navigator.pop(context);
+    }
   }
 
-  void _showModalSheet() {
+  void _showAddPrescriptionModalSheet() {
     showModalBottomSheet(
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -129,28 +114,10 @@ class _ManagementDetailsState extends State<ManagementDetails> {
               DateTime(_selectedDay.year, _selectedDay.month, _selectedDay.day),
           bhtNumber: widget.patient.bhtNumber!,
           title: 'Add Drug Chart',
-          prescriptionsList: prescriptionsList,
-          onRefresh: loadPrescriptions,
+          prescriptionsList: _prescriptionsList,
+          onRefresh: _loadPrescriptions,
         ),
       ),
-    );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    patientService = PatientService();
-    loadParameters();
-    loadPrescriptions();
-  }
-
-  getInputDecoration(String label, {String? hint}) {
-    return InputDecoration(
-      isDense: true,
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-      labelText: label,
-      labelStyle: TextStyle(fontSize: 15.0),
-      hintText: hint,
     );
   }
 
@@ -186,13 +153,86 @@ class _ManagementDetailsState extends State<ManagementDetails> {
                       children: [
                         Container(
                           width: 100,
+                          child: DropdownButtonFormField(
+                            validator: (value) {
+                              if (value == null || value.toString().isEmpty) {
+                                return 'Select';
+                              }
+                              return null;
+                            },
+                            onChanged: (value) {
+                              setState(() {
+                                _selectedSlot = int.parse(value.toString());
+                              });
+                            },
+                            decoration: getInputDecorationTextFormField('Slot'),
+                            items: [
+                              DropdownMenuItem(
+                                child: Text('6 AM'),
+                                value: 0,
+                              ),
+                              DropdownMenuItem(
+                                child: Text('12 PM'),
+                                value: 1,
+                              ),
+                              DropdownMenuItem(
+                                child: Text('6 PM'),
+                                value: 2,
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          width: 100,
+                          child: TextFormField(
+                            validator: (value) {
+                              if (value != null &&
+                                  value.isNotEmpty &&
+                                  value.split('/').length == 2) {
+                                //checking for sys/dia
+                                return null;
+                              }
+                              return 'sys.dia';
+                            },
+                            controller: _textEditingController,
+                            onChanged: (input) {
+                              setState(() {
+                                if (input.contains('.')) {
+                                  _textEditingController.text =
+                                      input.replaceAll('.', '/');
+                                  _textEditingController.selection =
+                                      TextSelection.collapsed(
+                                          offset: _textEditingController
+                                              .text.length);
+                                }
+                              });
+                            },
+                            onSaved: (input) {
+                              if (input != null && input.isNotEmpty)
+                                _parameterInputMap.putIfAbsent(
+                                    'bp', () => input);
+                            },
+                            decoration: getInputDecorationTextFormField("BP",
+                                hint: 'sys.dia'),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 15,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          width: 100,
                           child: TextFormField(
                             onSaved: (input) {
-                              bpValue = input!.isNotEmpty
-                                  ? double.parse(input)
-                                  : double.nan;
+                              if (input != null && input.isNotEmpty)
+                                _parameterInputMap.putIfAbsent(
+                                    'cbs', () => input);
                             },
-                            decoration: getInputDecoration("BP"),
+                            decoration: getInputDecorationTextFormField("CBS"),
                             keyboardType:
                                 TextInputType.numberWithOptions(decimal: true),
                           ),
@@ -201,11 +241,11 @@ class _ManagementDetailsState extends State<ManagementDetails> {
                           width: 100,
                           child: TextFormField(
                             onSaved: (input) {
-                              cbsValue = input!.isNotEmpty
-                                  ? double.parse(input)
-                                  : double.nan;
+                              if (input != null && input.isNotEmpty)
+                                _parameterInputMap.putIfAbsent(
+                                    'spo2', () => input);
                             },
-                            decoration: getInputDecoration("CBS"),
+                            decoration: getInputDecorationTextFormField("SPO2"),
                             keyboardType:
                                 TextInputType.numberWithOptions(decimal: true),
                           ),
@@ -222,11 +262,11 @@ class _ManagementDetailsState extends State<ManagementDetails> {
                           width: 100,
                           child: TextFormField(
                             onSaved: (input) {
-                              prValue = input!.isNotEmpty
-                                  ? double.parse(input)
-                                  : double.nan;
+                              if (input != null && input.isNotEmpty)
+                                _parameterInputMap.putIfAbsent(
+                                    'pr', () => input);
                             },
-                            decoration: getInputDecoration("PR"),
+                            decoration: getInputDecorationTextFormField("PR"),
                             keyboardType:
                                 TextInputType.numberWithOptions(decimal: true),
                           ),
@@ -235,29 +275,16 @@ class _ManagementDetailsState extends State<ManagementDetails> {
                           width: 100,
                           child: TextFormField(
                             onSaved: (input) {
-                              rrValue = input!.isNotEmpty
-                                  ? double.parse(input)
-                                  : double.nan;
+                              if (input != null && input.isNotEmpty)
+                                _parameterInputMap.putIfAbsent(
+                                    'rr', () => input);
                             },
-                            decoration: getInputDecoration("RR"),
+                            decoration: getInputDecorationTextFormField("RR"),
                             keyboardType:
                                 TextInputType.numberWithOptions(decimal: true),
                           ),
                         ),
                       ],
-                    ),
-                    SizedBox(
-                      height: 15,
-                    ),
-                    TextFormField(
-                      onSaved: (input) {
-                        spo2Value = input!.isNotEmpty
-                            ? double.parse(input)
-                            : double.nan;
-                      },
-                      decoration: getInputDecoration("SPO2"),
-                      keyboardType:
-                          TextInputType.numberWithOptions(decimal: true),
                     ),
                     SizedBox(
                       height: 15,
@@ -275,7 +302,7 @@ class _ManagementDetailsState extends State<ManagementDetails> {
                 child: Text('Cancel')),
             TextButton(
                 onPressed: () {
-                  saveParameters();
+                  _saveParameters();
                 },
                 child: Text('Add'))
           ],
@@ -284,7 +311,7 @@ class _ManagementDetailsState extends State<ManagementDetails> {
     );
   }
 
-  void _showDialog(DateTime date) {
+  void _showManagementInputDialog(DateTime date) {
     showDialog(
       context: context,
       builder: (context) {
@@ -326,7 +353,7 @@ class _ManagementDetailsState extends State<ManagementDetails> {
                     onTap: () {
                       print('Add management');
                       Navigator.pop(context);
-                      _showModalSheet();
+                      _showAddPrescriptionModalSheet();
                     }),
               ],
             ),
@@ -341,6 +368,20 @@ class _ManagementDetailsState extends State<ManagementDetails> {
         );
       },
     );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _formStateKey.currentState!.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _patientService = PatientService();
+    _loadParameters();
+    _loadPrescriptions();
   }
 
   @override
@@ -369,15 +410,15 @@ class _ManagementDetailsState extends State<ManagementDetails> {
                     focusedDay; // update `_focusedDay` here as well
               });
 
-              loadParameters();
-              loadPrescriptions();
+              _loadParameters();
+              _loadPrescriptions();
             },
             calendarFormat: CalendarFormat.week,
             onPageChanged: (focusedDay) {
               this._focusedDay = focusedDay;
             },
             onDayLongPressed: (selectedDay, focussedDay) {
-              _showDialog(selectedDay);
+              _showManagementInputDialog(selectedDay);
               setState(() {
                 this._selectedDay = selectedDay;
               });
@@ -386,14 +427,13 @@ class _ManagementDetailsState extends State<ManagementDetails> {
               print('long pressed');
             },
           ),
-          isLoading
+          _isLoadingPrescriptions || _isLoadingParameters
               ? circularProgress()
               : ManagementDetailsContainer(
                   patient: widget.patient,
                   selectedDay: _selectedDay,
-                  drugsListList: drugsListList,
-                  prescriptionsList: prescriptionsList,
-                  parametersList: parametersList,
+                  prescriptionsList: _prescriptionsList,
+                  parametersList: _parametersList,
                 ),
         ],
       ),
