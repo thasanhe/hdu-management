@@ -9,11 +9,13 @@ class PrescriptionContent extends StatefulWidget {
   final Patient patient;
   final DateTime selectedDay;
   final List<Prescription> prescriptionsList;
+  final VoidCallback onAdd;
   const PrescriptionContent({
     Key? key,
     required this.patient,
     required this.selectedDay,
     required this.prescriptionsList,
+    required this.onAdd,
   }) : super(key: key);
 
   @override
@@ -28,11 +30,13 @@ class _PrescriptionContentState extends State<PrescriptionContent> {
                 .format(widget.prescriptionsList.first.createdDateTime),
             prescriptionsList: widget.prescriptionsList,
             selectedDay: widget.selectedDay,
+            onAdd: widget.onAdd,
           )
         : PrescriptionTile(
             title: "",
             selectedDay: widget.selectedDay,
             prescriptionsList: [],
+            onAdd: widget.onAdd,
           );
   }
 

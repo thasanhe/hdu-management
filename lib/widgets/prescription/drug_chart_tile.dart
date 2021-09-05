@@ -8,12 +8,14 @@ class PrescriptionTile extends StatefulWidget {
   final IconData? trailingIcon;
   final DateTime selectedDay;
   final List<Prescription> prescriptionsList;
+  final VoidCallback onAdd;
 
   PrescriptionTile({
     required this.title,
     this.trailingIcon,
     required this.selectedDay,
     required this.prescriptionsList,
+    required this.onAdd,
   });
 
   @override
@@ -44,10 +46,6 @@ class PrescriptionTileState extends State<PrescriptionTile> {
       }
 
       return Container(
-        // decoration: BoxDecoration(
-        //   border:
-        //       Border(bottom: BorderSide(width: 1, color: Colors.grey[400]!)),
-        // ),
         child: Padding(
           padding: const EdgeInsets.only(
               right: 16.0, left: 16.0, top: 8.0, bottom: 8.0),
@@ -86,7 +84,15 @@ class PrescriptionTileState extends State<PrescriptionTile> {
           data: theme,
           child: ExpansionTile(
             backgroundColor: Color(0xffFFEEE0),
-            title: Text('Drug Chart'),
+            title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Drug Chart'),
+                  GestureDetector(
+                    child: Icon(Icons.add),
+                    onTap: widget.onAdd,
+                  )
+                ]),
             children: widget.prescriptionsList.isNotEmpty
                 ? buildExpandedItems()
                 : [Text('No data')],

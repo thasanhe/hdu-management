@@ -186,8 +186,9 @@ class _ManagementDetailsState extends State<ManagementDetails> {
                           width: 100,
                           child: TextFormField(
                             validator: (value) {
-                              if (value != null &&
-                                  value.isNotEmpty &&
+                              if (value == null || value.isEmpty) {
+                                return null;
+                              } else if (value.isNotEmpty &&
                                   value.split('/').length == 2) {
                                 //checking for sys/dia
                                 return null;
@@ -432,10 +433,12 @@ class _ManagementDetailsState extends State<ManagementDetails> {
           _isLoadingPrescriptions || _isLoadingParameters
               ? circularProgress()
               : ManagementDetailsContainer(
+                  onAddParameters: _showParameterInputDialog,
                   patient: widget.patient,
                   selectedDay: _selectedDay,
                   prescriptionsList: _prescriptionsList,
                   parametersList: _parametersList,
+                  onAddPrescription: _showAddPrescriptionModalSheet,
                 ),
         ],
       ),

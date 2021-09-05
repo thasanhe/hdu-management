@@ -5,10 +5,12 @@ import 'package:hdu_management/models/parameters.dart';
 class ParameterTile extends StatefulWidget {
   final List<Parameters> parametersList;
   final IconData? trailingIcon;
+  VoidCallback onAdd;
 
   ParameterTile({
     required this.parametersList,
     this.trailingIcon,
+    required this.onAdd,
   });
 
   @override
@@ -161,7 +163,16 @@ class ParameterTileState extends State<ParameterTile> {
           data: theme,
           child: ExpansionTile(
             backgroundColor: Color(0xffFFEEE0),
-            title: Text('Parameters'),
+            title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Parameters'),
+                  GestureDetector(
+                    child: Icon(Icons.add),
+                    onTap: widget.onAdd,
+                  )
+                ]),
+
             // trailing:
             //     Text(widget.parametersList.first.createdDateTime.toString()),
             children: [

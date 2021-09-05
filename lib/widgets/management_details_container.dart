@@ -11,12 +11,16 @@ class ManagementDetailsContainer extends StatefulWidget {
   final DateTime selectedDay;
   final List<Parameters> parametersList;
   final List<Prescription> prescriptionsList;
+  final VoidCallback onAddParameters;
+  final VoidCallback onAddPrescription;
   const ManagementDetailsContainer({
     Key? key,
     required this.patient,
     required this.selectedDay,
     required this.parametersList,
     required this.prescriptionsList,
+    required this.onAddParameters,
+    required this.onAddPrescription,
   }) : super(key: key);
 
   @override
@@ -39,11 +43,13 @@ class _ManagementDetailsContainerState
             parametersList: widget.parametersList,
             patient: widget.patient,
             selectedDay: widget.selectedDay,
+            onAdd: widget.onAddParameters,
           ),
           PrescriptionContent(
             prescriptionsList: widget.prescriptionsList,
             patient: widget.patient,
             selectedDay: widget.selectedDay,
+            onAdd: widget.onAddPrescription,
           ),
         ]),
       ),
