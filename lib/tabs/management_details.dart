@@ -373,11 +373,11 @@ class _ManagementDetailsState extends State<ManagementDetails> {
     );
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-    _formStateKey.currentState!.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   super.dispose();
+  //   _formStateKey.currentState!.dispose();
+  // }
 
   @override
   void initState() {

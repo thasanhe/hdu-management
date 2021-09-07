@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 final colorBrightYellow = Color(0xffFBB97C);
@@ -11,5 +12,16 @@ getInputDecorationTextFormField(String label, {String? hint}) {
     labelText: label,
     labelStyle: TextStyle(fontSize: 15.0),
     hintText: hint,
+  );
+}
+
+getInputDecorationCalendar(String label, {String? hint}) {
+  return InputDecoration(
+    isDense: true,
+    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+    labelText: label,
+    labelStyle: TextStyle(fontSize: 15.0),
+    hintText: hint,
+    prefixIcon: Icon(CupertinoIcons.calendar),
   );
 }

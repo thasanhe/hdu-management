@@ -9,11 +9,12 @@ class DutyRoster extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Text('Call Priyanwada'),
-        TextButton(
-          onPressed: () => launch('tel://0715864325'),
-          child: Icon(Icons.call),
-        ),
+        // Text('Call Priyanwada'),
+        // TextButton(
+        //   onPressed: () => launch('tel://0715864325'),
+        //   child: Icon(Icons.call),
+        // ),
+        Text('v0.0.4'),
       ],
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.center,

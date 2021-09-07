@@ -64,6 +64,9 @@ class _PatientSearchState extends State<PatientSearch> {
     this.patientsForList = patientsList;
     occupiedBeds = patientsList!.map((pt) => pt.bedNumber).toList();
     setState(() {
+      this.patientsList = patientsList;
+      this.patientsForList = patientsList;
+      occupiedBeds = patientsList!.map((pt) => pt.bedNumber).toList();
       this.isPatientFeched = true;
     });
   }
@@ -81,6 +84,7 @@ class _PatientSearchState extends State<PatientSearch> {
         listItems.add(PatientsTile(
           patient: patient,
           isSearch: true,
+          onRefresh: fetchAllPatients,
         ));
       });
 
@@ -161,7 +165,6 @@ class _PatientSearchState extends State<PatientSearch> {
                           ),
                           onRefresh: () {
                             fetchAllPatients();
-                            print("Refreshing the list");
                             return Future.value('');
                           },
                         ),

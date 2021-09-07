@@ -2,24 +2,33 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hdu_management/models/gender.dart';
 import 'package:hdu_management/models/patient.dart';
-import 'package:hdu_management/screens/patient_profile.dart';
+import 'package:hdu_management/services/patient_service.dart';
 
-class PatientsTile extends StatefulWidget {
+class PatientsProfileHeader extends StatefulWidget {
   final Patient patient;
   final bool isSearch;
-  final VoidCallback onRefresh;
+  final VoidCallback showUpdateDialog;
 
-  PatientsTile({
+  PatientsProfileHeader({
     required this.patient,
     required this.isSearch,
-    required this.onRefresh,
+    required this.showUpdateDialog,
   });
 
   @override
-  _PatientsTileState createState() => _PatientsTileState();
+  _PatientsProfileHeaderState createState() => _PatientsProfileHeaderState();
 }
 
-class _PatientsTileState extends State<PatientsTile> {
+class _PatientsProfileHeaderState extends State<PatientsProfileHeader> {
+  late PatientService patientService;
+
+  @override
+  initState() {
+    super.initState();
+
+    patientService = PatientService();
+  }
+
   @override
   Widget build(BuildContext context) {
     final bedNumber = widget.patient.bedNumber != null
@@ -31,7 +40,8 @@ class _PatientsTileState extends State<PatientsTile> {
     final name = widget.patient.name;
     final gender = Gender.male == widget.patient.gender ? 'MALE' : 'FEMALE';
     final age = widget.patient.age.toString();
-    final status = widget.patient.currentStatus.toUpperCase();
+    final status =
+        "${widget.patient.currentStatus.toUpperCase()} ${widget.patient.currentStatusValue1 != null ? widget.patient.currentStatusValue1 : ''} ${widget.patient.currentStatusValue2 != null ? '& ${widget.patient.currentStatusValue2}' : ''} ${widget.patient.currentStatusUnit != null ? widget.patient.currentStatusUnit : ''}";
 
     final daysfromSymptoms =
         DateTime.now().difference(widget.patient.symptomsDate).inDays;
@@ -39,35 +49,33 @@ class _PatientsTileState extends State<PatientsTile> {
         DateTime.now().difference(widget.patient.pcrRatDate).inDays;
 
     return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => PatientProfile(
-              bhtNumber: widget.patient.bhtNumber!,
-              onRefresh: widget.onRefresh,
-            ),
-          ),
-        );
-      },
+      onTap: widget.showUpdateDialog,
       child: Column(
         children: [
           Container(
             decoration: BoxDecoration(
                 color: Color(0xffFFEEE0),
                 borderRadius: BorderRadius.circular(20)),
-            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+            padding: EdgeInsets.only(left: 0, right: 15, top: 15, bottom: 15),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              // crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                SizedBox(
-                  width: 10,
-                ),
+                IconButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    icon: Icon(CupertinoIcons.back)),
+                // SizedBox(
+                //   width: 5,
+                // ),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
+                      // IconButton(
+                      //     onPressed: () {}, icon: Icon(CupertinoIcons.back)),
                       Text(
                         "$name",
                         overflow: TextOverflow.ellipsis,

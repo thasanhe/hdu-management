@@ -3,6 +3,7 @@ import 'package:hdu_management/models/gender.dart';
 import 'package:hdu_management/models/on_admission_status.dart';
 import 'package:hdu_management/models/parameters.dart';
 import 'package:hdu_management/models/patient.dart';
+import 'package:hdu_management/models/patient_status.dart';
 import 'package:hdu_management/models/prescription.dart';
 
 class PatientService {
@@ -11,6 +12,8 @@ class PatientService {
       FirebaseFirestore.instance.collection('on_admission_status');
   final parametersRef = FirebaseFirestore.instance.collection('parameters');
   final prescriptionRef = FirebaseFirestore.instance.collection('prescription');
+  final patientStatusRef =
+      FirebaseFirestore.instance.collection('patient_status');
 
   Future<List<Patient>> getAllPatients() async {
     List<Patient> patientList = [];
@@ -20,6 +23,11 @@ class PatientService {
     });
     print('Retrieved patients');
     return patientList;
+  }
+
+  Future<Patient> getPatientByBht(double bhtNumber) async {
+    final docSnapshot = await patientsRef.doc(bhtNumber.toString()).get();
+    return Patient.fromDocument(docSnapshot);
   }
 
   Future<OnAdmissionStatus?> getOnAdmissionStatusByPatient(
@@ -79,6 +87,19 @@ class PatientService {
     return parametersList;
   }
 
+  Future<PatientStatus?> getCurrentPatientStatusByBht(double bhtNumber) async {
+    PatientStatus? status;
+    final querySnapshot = await patientStatusRef
+        .where('bhtNumber', isEqualTo: bhtNumber)
+        .orderBy('assignedDateTime', descending: true)
+        .limit(1)
+        .get();
+
+    status = PatientStatus.fromDocument(querySnapshot.docs.first);
+    print('Retrieved patient status');
+    return status;
+  }
+
   Future<String> createPatient(Patient patient) async {
     DocumentSnapshot pt = await patientsRef.doc(patient.id).get();
     if (!pt.exists) {
@@ -92,7 +113,6 @@ class PatientService {
         "contactNumber": patient.contactNumber,
         "symptomsDate": patient.symptomsDate,
         "pcrRatDate": patient.pcrRatDate,
-        "currentStatus": patient.currentStatus,
         "dateOfAdmissionHospital": patient.dateOfAdmissionHospital,
         "dateOfDischarge": patient.dateOfDischarge,
         "dateOfTransfer": patient.dateOfTransfer,
@@ -100,6 +120,15 @@ class PatientService {
         "dateOfDeath": patient.dateOfDeath,
         "bhtNumber": patient.bhtNumber,
         "bedNumber": patient.bedNumber != null ? patient.bedNumber : 100000,
+        'currentStatus': patient.currentStatus,
+        'currentStatusValue1': patient.currentStatusValue1,
+        'currentStatusValue2': patient.currentStatusValue2,
+        'currentStatusUnit': patient.currentStatusUnit,
+        'currentStatusDate': patient.currentStatusDate,
+        'vaccinatedStatus': patient.vaccinatedStatus,
+        'vaccine': patient.vaccine,
+        'dateOFFirstDose': patient.dateOFFirstDose,
+        'dateOFSecondDose': patient.dateOFSecondDose,
       });
 
       pt = await patientsRef.doc(patient.id).get();
@@ -174,71 +203,32 @@ class PatientService {
     await batch.commit();
     print('created parameters');
   }
+
+  Future<void> createPatientStatus(
+      PatientStatus status, DateTime currentStatusDate) async {
+    final docId = status.bhtNumber.toString() +
+        '-' +
+        status.status +
+        '-' +
+        status.assignedDateTime.toIso8601String();
+
+    await patientStatusRef.doc(docId).set({
+      'bhtNumber': status.bhtNumber,
+      'status': status.status,
+      'value1': status.value1,
+      'value2': status.value2,
+      'unit': status.unit,
+      'assignedDateTime': status.assignedDateTime
+    });
+
+    if (currentStatusDate.isBefore(status.assignedDateTime)) {
+      await patientsRef.doc(status.bhtNumber.toString()).update({
+        'currentStatus': status.status,
+        'currentStatusValue1': status.value1,
+        'currentStatusValue2': status.value2,
+        'currentStatusUnit': status.unit,
+        'currentStatusDate': status.assignedDateTime,
+      });
+    }
+  }
 }
-
-  // Future<void> createParameters(List<Parameters> paramertersList) async {
-  //   var updateBatch = FirebaseFirestore.instance.batch();
-  //   var createBatch = FirebaseFirestore.instance.batch();
-
-  //   paramertersList.forEach((paramerters) {
-  //     final docId = paramerters.bhtNumber.toString() +
-  //         '-' +
-  //         paramerters.name +
-  //         '-' +
-  //         paramerters.measuredDate.toIso8601String() +
-  //         '-' +
-  //         paramerters.slot.toString();
-
-  //     // createBatch.set(parametersRef.doc(docId), {
-  //     //   "bhtNumber": paramerters.bhtNumber,
-  //     //   "createdDateTime": paramerters.createdDateTime,
-  //     //   "measuredDate": paramerters.measuredDate,
-  //     //   "slot": paramerters.slot,
-  //     //   "name": paramerters.name,
-  //     //   "value": paramerters.value,
-  //     // });
-
-  //     updateBatch.update(parametersRef.doc(docId), {
-  //       "bhtNumber": paramerters.bhtNumber,
-  //       "createdDateTime": paramerters.createdDateTime,
-  //       "measuredDate": paramerters.measuredDate,
-  //       "slot": paramerters.slot,
-  //       "name": paramerters.name,
-  //       "value": paramerters.value,
-  //     });
-  //   });
-
-  //   try {
-  //     await updateBatch.commit();
-  //   } catch (e) {
-  //     paramertersList.forEach((paramerters) {
-  //       final docId = paramerters.bhtNumber.toString() +
-  //           '-' +
-  //           paramerters.name +
-  //           '-' +
-  //           paramerters.measuredDate.toIso8601String() +
-  //           '-' +
-  //           paramerters.slot.toString();
-
-  //       createBatch.set(parametersRef.doc(docId), {
-  //         "bhtNumber": paramerters.bhtNumber,
-  //         "createdDateTime": paramerters.createdDateTime,
-  //         "measuredDate": paramerters.measuredDate,
-  //         "slot": paramerters.slot,
-  //         "name": paramerters.name,
-  //         "value": paramerters.value,
-  //       });
-
-  //       // updateBatch.update(parametersRef.doc(docId), {
-  //       //   "bhtNumber": paramerters.bhtNumber,
-  //       //   "createdDateTime": paramerters.createdDateTime,
-  //       //   "measuredDate": paramerters.measuredDate,
-  //       //   "slot": paramerters.slot,
-  //       //   "name": paramerters.name,
-  //       //   "value": paramerters.value,
-  //       // });
-  //     });
-  //     await createBatch.commit();
-  //   }
-  // }
-// }

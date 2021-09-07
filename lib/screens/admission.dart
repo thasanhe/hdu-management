@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:hdu_management/models/gender.dart';
 import 'package:hdu_management/models/on_admission_status.dart';
 import 'package:hdu_management/models/patient.dart';
-import 'package:hdu_management/models/patient_status.dart';
 import 'package:hdu_management/services/patient_service.dart';
 
 import 'package:textfield_tags/textfield_tags.dart';
@@ -25,6 +24,10 @@ class _AdmissionPageState extends State<Admission> {
   final _symtompsDateController = TextEditingController();
   final _pcrRatDateController = TextEditingController();
   final _bedInputController = TextEditingController();
+  final _doaHduController = TextEditingController();
+  final _doaHospitalController = TextEditingController();
+  final _firstDoseController = TextEditingController();
+  final _secondDoseController = TextEditingController();
 
   String? name;
   String? bht;
@@ -36,7 +39,10 @@ class _AdmissionPageState extends State<Admission> {
   String? symptoms;
   String? history;
   String? nic;
-  DateTime? dateOfAdmissionHospital;
+  DateTime? dateOfAdmissionHospital = DateTime.now();
+  DateTime? dateOfAdmissionToHdu = DateTime.now();
+  DateTime? dateOfFirstDose;
+  DateTime? dateOfSecondDose;
   String? contactNumber;
   late PatientService patientService;
 
@@ -44,6 +50,9 @@ class _AdmissionPageState extends State<Admission> {
   List<String> coMobList = [];
   List<String> surgHistList = [];
   List<String> alergiesList = [];
+
+  String? vaccinationStatus = 'Not Vaccinated';
+  String? vaccine;
 
   @override
   initState() {
@@ -60,20 +69,24 @@ class _AdmissionPageState extends State<Admission> {
       formState.save();
       print("Form state save");
       Patient patient = Patient(
-        dateOfAdmissionHDU: DateTime.now(),
-        id: this.bht,
-        name: this.name!,
-        bhtNumber: double.parse(this.bht!),
-        gender: this.gender == 'Male' ? Gender.male : Gender.female,
-        currentStatus: 'inward',
-        symptomsDate: this.symptomsDate!,
-        pcrRatDate: this.pcrRatDate!,
-        bedNumber: this.bedNumber,
-        age: this.age!,
-        nic: this.nic,
-        dateOfAdmissionHospital: this.dateOfAdmissionHospital,
-        contactNumber: this.contactNumber,
-      );
+          dateOfAdmissionHDU: this.dateOfAdmissionToHdu,
+          id: this.bht,
+          name: this.name!,
+          bhtNumber: double.parse(this.bht!),
+          gender: this.gender == 'Male' ? Gender.male : Gender.female,
+          currentStatus: 'inward',
+          symptomsDate: this.symptomsDate!,
+          pcrRatDate: this.pcrRatDate!,
+          bedNumber: this.bedNumber,
+          age: this.age!,
+          nic: this.nic,
+          dateOfAdmissionHospital: this.dateOfAdmissionHospital,
+          contactNumber: this.contactNumber,
+          currentStatusDate: this.dateOfAdmissionHospital,
+          vaccinatedStatus: this.vaccinationStatus,
+          dateOFFirstDose: this.dateOfFirstDose,
+          dateOFSecondDose: this.dateOfSecondDose,
+          vaccine: this.vaccine);
 
       OnAdmissionStatus status = OnAdmissionStatus(
         bhtNumber: double.parse(this.bht!),
@@ -168,6 +181,73 @@ class _AdmissionPageState extends State<Admission> {
 
       _pcrRatDateController.text =
           '${pcrRatDate!.day}/${pcrRatDate!.month}/${pcrRatDate!.year}';
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  onTapDatePickerDOAHdu() async {
+    try {
+      this.dateOfAdmissionToHdu = await showDatePicker(
+        context: context,
+        initialDate: DateTime.now(),
+        firstDate: DateTime.now().subtract(Duration(days: 30)),
+        lastDate: DateTime.now(),
+      );
+
+      _doaHduController.text =
+          '${dateOfAdmissionToHdu!.day}/${dateOfAdmissionToHdu!.month}/${dateOfAdmissionToHdu!.year}';
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  onTapDatePickerFirstDose() async {
+    try {
+      this.dateOfFirstDose = await showDatePicker(
+        context: context,
+        initialDate:
+            dateOfFirstDose != null ? dateOfFirstDose! : DateTime.now(),
+        firstDate: DateTime(2019, 01, 01),
+        lastDate: dateOfSecondDose != null ? dateOfSecondDose! : DateTime.now(),
+      );
+
+      _firstDoseController.text =
+          '${dateOfFirstDose!.day}/${dateOfFirstDose!.month}/${dateOfFirstDose!.year}';
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  onTapDatePickerSecondDose() async {
+    try {
+      this.dateOfSecondDose = await showDatePicker(
+        context: context,
+        initialDate:
+            dateOfSecondDose != null ? dateOfSecondDose! : DateTime.now(),
+        firstDate:
+            dateOfFirstDose != null ? dateOfFirstDose! : DateTime(2019, 01, 01),
+        lastDate: DateTime.now(),
+      );
+
+      _secondDoseController.text =
+          '${dateOfSecondDose!.day}/${dateOfSecondDose!.month}/${dateOfSecondDose!.year}';
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  onTapDatePickerDOAHospital() async {
+    try {
+      this.dateOfAdmissionHospital = await showDatePicker(
+        context: context,
+        initialDate: DateTime.now(),
+        firstDate: DateTime.now().subtract(Duration(days: 30)),
+        lastDate: DateTime.now(),
+      );
+
+      _doaHospitalController.text =
+          '${dateOfAdmissionHospital!.day}/${dateOfAdmissionHospital!.month}/${dateOfAdmissionHospital!.year}';
     } catch (e) {
       print(e);
     }
@@ -345,7 +425,11 @@ class _AdmissionPageState extends State<Admission> {
                         readOnly: true,
                         controller: _bedInputController,
                         onTap: getBedPicker,
-                        onSaved: (input) => {bedNumber = int.parse(input!)},
+                        onSaved: (input) => {
+                          bedNumber = input != null && input.isNotEmpty
+                              ? int.parse(input)
+                              : null
+                        },
                         decoration: getInputDecoration("Bed Number"),
                         keyboardType: TextInputType.number,
                       ),
@@ -396,6 +480,148 @@ class _AdmissionPageState extends State<Admission> {
                         },
                         onTap: onTapDatePickerPCR,
                         decoration: getInputDecorationCalendar("PCR/RAT Date"),
+                      ),
+                      SizedBox(
+                        height: 15,
+                      ),
+                      DropdownButtonFormField<String>(
+                        validator: (input) {
+                          if (input == null || input.isEmpty) {
+                            return "Please select the vaccination status";
+                          }
+                          return null;
+                        },
+                        decoration: getInputDecoration("Vaccination Status"),
+                        items: <String>[
+                          'Not Vaccinated',
+                          'One Dose',
+                          'Two Doses'
+                        ].map((String value) {
+                          return new DropdownMenuItem<String>(
+                            value: value,
+                            child: new Text(value),
+                          );
+                        }).toList(),
+                        onSaved: (input) => {vaccinationStatus = input},
+                        onChanged: (input) {
+                          print(input);
+                          setState(() {
+                            vaccinationStatus = input;
+                          });
+                        },
+                      ),
+                      SizedBox(
+                        height: 15,
+                      ),
+                      Visibility(
+                        visible: vaccinationStatus == 'One Dose' ||
+                            vaccinationStatus == 'Two Doses',
+                        child: DropdownButtonFormField<String>(
+                          validator: (input) {
+                            if (input == null || input.isEmpty) {
+                              return "Please select the vaccine ";
+                            }
+                            return null;
+                          },
+                          decoration: getInputDecoration("Vaccine"),
+                          items: <String>[
+                            'CoviShield-AstraZeneca',
+                            'Sinopharm',
+                            'Pfizer',
+                            'Moderna',
+                            'Sputnik V',
+                          ].map((String value) {
+                            return new DropdownMenuItem<String>(
+                              value: value,
+                              child: new Text(value),
+                            );
+                          }).toList(),
+                          onSaved: (input) => {vaccine = input},
+                          onChanged: (input) {
+                            print(input);
+                            setState(() {
+                              vaccine = input;
+                            });
+                          },
+                        ),
+                      ),
+                      Visibility(
+                        visible: vaccinationStatus == 'One Dose' ||
+                            vaccinationStatus == 'Two Doses',
+                        child: SizedBox(
+                          height: 15,
+                        ),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Visibility(
+                            visible: vaccinationStatus == 'One Dose' ||
+                                vaccinationStatus == 'Two Doses',
+                            child: Container(
+                              width: 150,
+                              child: TextFormField(
+                                controller: _firstDoseController,
+                                onTap: onTapDatePickerFirstDose,
+                                decoration:
+                                    getInputDecorationCalendar("1st Dose"),
+                              ),
+                            ),
+                          ),
+                          Visibility(
+                            visible: vaccinationStatus == 'One Dose' ||
+                                vaccinationStatus == 'Two Doses',
+                            child: SizedBox(
+                              width: 15,
+                            ),
+                          ),
+                          Visibility(
+                            visible: vaccinationStatus == 'Two Doses',
+                            child: Container(
+                              width: 150,
+                              child: TextFormField(
+                                controller: _secondDoseController,
+                                onTap: onTapDatePickerSecondDose,
+                                decoration:
+                                    getInputDecorationCalendar("2nd Dose"),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Visibility(
+                        visible: vaccinationStatus == 'One Dose' ||
+                            vaccinationStatus == 'Two Doses',
+                        child: SizedBox(
+                          height: 15,
+                        ),
+                      ),
+                      TextFormField(
+                        controller: _doaHduController,
+                        validator: (input) {
+                          if (input == null || input.isEmpty) {
+                            return "Please select date of Admission to HDU";
+                          }
+                          return null;
+                        },
+                        onTap: onTapDatePickerDOAHdu,
+                        decoration: getInputDecorationCalendar(
+                            "Date of Admission - HDU"),
+                      ),
+                      SizedBox(
+                        height: 15,
+                      ),
+                      TextFormField(
+                        controller: _doaHospitalController,
+                        validator: (input) {
+                          if (input == null || input.isEmpty) {
+                            return "Please select date of Admission to Hospital";
+                          }
+                          return null;
+                        },
+                        onTap: onTapDatePickerDOAHospital,
+                        decoration: getInputDecorationCalendar(
+                            "Date of Admission - Hospital"),
                       ),
                       SizedBox(
                         height: 15,
