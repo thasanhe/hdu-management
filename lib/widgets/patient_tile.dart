@@ -31,7 +31,8 @@ class _PatientsTileState extends State<PatientsTile> {
     final name = widget.patient.name;
     final gender = Gender.male == widget.patient.gender ? 'MALE' : 'FEMALE';
     final age = widget.patient.age.toString();
-    final status = widget.patient.currentStatus.toUpperCase();
+    final status =
+        "${widget.patient.currentStatus.toUpperCase()} (${widget.patient.currentStatusValue1 != null ? widget.patient.currentStatusValue1 : ''} ${widget.patient.currentStatusValue2 != null ? '+ ${widget.patient.currentStatusValue2}' : ''} ${widget.patient.currentStatusUnit != null ? widget.patient.currentStatusUnit : ''})";
 
     final daysfromSymptoms =
         DateTime.now().difference(widget.patient.symptomsDate).inDays;
