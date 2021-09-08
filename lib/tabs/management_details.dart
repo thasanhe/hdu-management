@@ -96,6 +96,21 @@ class _ManagementDetailsState extends State<ManagementDetails> {
     });
   }
 
+  List<Investigations> filterLatestInvestigations(
+      List<Investigations> investigations) {
+    Map<String, Investigations> testWiseInvestigations = {};
+
+    for (int i = 0; i < investigations.length; ++i) {
+      // testWiseInvestigations.putIfAbsent(
+      //     investigations.elementAt(i).test, () => investigations.elementAt(i));
+
+      testWiseInvestigations[investigations.elementAt(i).test] =
+          investigations.elementAt(i);
+    }
+
+    return testWiseInvestigations.values.toList();
+  }
+
   void _loadInvestigations() async {
     _isLoadingInvestigations = true;
     await Future.delayed(Duration(milliseconds: 200));
@@ -105,8 +120,10 @@ class _ManagementDetailsState extends State<ManagementDetails> {
       DateTime(_selectedDay.year, _selectedDay.month, _selectedDay.day).add(
           Duration(hours: DateTime.now().hour, minutes: DateTime.now().minute)),
     );
+
     setState(() {
-      this._investigationsList = retrievedInvestigations;
+      this._investigationsList =
+          filterLatestInvestigations(retrievedInvestigations);
       _isLoadingInvestigations = false;
     });
   }
@@ -696,7 +713,9 @@ class _ManagementDetailsState extends State<ManagementDetails> {
               print('long pressed');
             },
           ),
-          _isLoadingPrescriptions || _isLoadingParameters
+          _isLoadingPrescriptions ||
+                  _isLoadingParameters ||
+                  _isLoadingInvestigations
               ? circularProgress()
               : ManagementDetailsContainer(
                   onAddParameters: _showParameterInputDialog,
