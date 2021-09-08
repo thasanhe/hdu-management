@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hdu_management/models/gender.dart';
+import 'package:hdu_management/models/investigations.dart';
 import 'package:hdu_management/models/on_admission_status.dart';
 import 'package:hdu_management/models/parameters.dart';
 import 'package:hdu_management/models/patient.dart';
@@ -11,9 +12,15 @@ class PatientService {
   final onAdmissionStatusRef =
       FirebaseFirestore.instance.collection('on_admission_status');
   final parametersRef = FirebaseFirestore.instance.collection('parameters');
+  final investigationsRef =
+      FirebaseFirestore.instance.collection('investigations');
   final prescriptionRef = FirebaseFirestore.instance.collection('prescription');
   final patientStatusRef =
       FirebaseFirestore.instance.collection('patient_status');
+
+  String parseDocID(String id) {
+    return id.replaceAll('/', '-');
+  }
 
   Future<List<Patient>> getAllPatients() async {
     List<Patient> patientList = [];
@@ -26,7 +33,8 @@ class PatientService {
   }
 
   Future<Patient> getPatientByBht(double bhtNumber) async {
-    final docSnapshot = await patientsRef.doc(bhtNumber.toString()).get();
+    final docSnapshot =
+        await patientsRef.doc(parseDocID(bhtNumber.toString())).get();
     return Patient.fromDocument(docSnapshot);
   }
 
@@ -34,7 +42,7 @@ class PatientService {
       double bhtNumber) async {
     OnAdmissionStatus? status;
     final querySnapshot =
-        await onAdmissionStatusRef.doc(bhtNumber.toString()).get();
+        await onAdmissionStatusRef.doc(parseDocID(bhtNumber.toString())).get();
     status = OnAdmissionStatus.fromDocument(querySnapshot);
     print('Retrieved on admission status');
     return status;
@@ -87,6 +95,30 @@ class PatientService {
     return parametersList;
   }
 
+  Future<List<Investigations>> getInvestigationsByPatientAndSelectedDate(
+      double bhtNumber, DateTime selectedDtm) async {
+    List<Investigations> investigationsList = [];
+
+    print('getting investigations');
+    print(bhtNumber);
+    print(selectedDtm.toString());
+
+    final querySnapshot = await investigationsRef
+        .where('bhtNumber', isEqualTo: bhtNumber)
+        .where('sampleDateTime',
+            isLessThanOrEqualTo: Timestamp.fromDate(selectedDtm))
+        .orderBy('sampleDateTime')
+        .get();
+
+    querySnapshot.docs.forEach((doc) {
+      investigationsList.add(Investigations.fromDocument(doc));
+    });
+
+    print('Retrieved Investigations');
+    print(investigationsList);
+    return investigationsList;
+  }
+
   Future<PatientStatus?> getCurrentPatientStatusByBht(double bhtNumber) async {
     PatientStatus? status;
     final querySnapshot = await patientStatusRef
@@ -101,9 +133,9 @@ class PatientService {
   }
 
   Future<String> createPatient(Patient patient) async {
-    DocumentSnapshot pt = await patientsRef.doc(patient.id).get();
+    DocumentSnapshot pt = await patientsRef.doc(parseDocID(patient.id!)).get();
     if (!pt.exists) {
-      await patientsRef.doc(patient.bhtNumber.toString()).set({
+      await patientsRef.doc(parseDocID(patient.bhtNumber.toString())).set({
         "name": patient.name,
         "gender": patient.gender == Gender.male ? 'male' : 'female',
         "id": patient.bhtNumber,
@@ -131,7 +163,7 @@ class PatientService {
         'dateOFSecondDose': patient.dateOFSecondDose,
       });
 
-      pt = await patientsRef.doc(patient.id).get();
+      pt = await patientsRef.doc(parseDocID(patient.id!)).get();
       Patient savedPt = Patient.fromDocument(pt);
       print('Created patient');
       return Future.value(savedPt.name);
@@ -141,7 +173,9 @@ class PatientService {
 
   Future<String> createPatientOnAdmissionStatus(
       OnAdmissionStatus onAdmissionStatus) async {
-    await onAdmissionStatusRef.doc(onAdmissionStatus.bhtNumber.toString()).set({
+    await onAdmissionStatusRef
+        .doc(parseDocID(onAdmissionStatus.bhtNumber.toString()))
+        .set({
       "bhtNumber": onAdmissionStatus.bhtNumber,
       "alergies": onAdmissionStatus.alergies,
       "co_mobidities": onAdmissionStatus.coMobidities,
@@ -150,7 +184,7 @@ class PatientService {
     });
 
     final status = await onAdmissionStatusRef
-        .doc(onAdmissionStatus.bhtNumber.toString())
+        .doc(parseDocID(onAdmissionStatus.bhtNumber.toString()))
         .get();
     OnAdmissionStatus savedStatus = OnAdmissionStatus.fromDocument(status);
     print('Created on admission status');
@@ -166,7 +200,7 @@ class PatientService {
           prescription.drug +
           '-' +
           prescription.prescribedDate.toIso8601String();
-      batch.set(prescriptionRef.doc(docId), {
+      batch.set(prescriptionRef.doc(parseDocID(docId)), {
         "bhtNumber": prescription.bhtNumber,
         "drug": prescription.drug,
         "createdDateTime": prescription.createdDateTime,
@@ -191,7 +225,7 @@ class PatientService {
           '-' +
           paramerters.slot.toString();
 
-      batch.set(parametersRef.doc(docId), {
+      batch.set(parametersRef.doc(parseDocID(docId)), {
         "bhtNumber": paramerters.bhtNumber,
         "createdDateTime": paramerters.createdDateTime,
         "measuredDate": paramerters.measuredDate,
@@ -204,6 +238,24 @@ class PatientService {
     print('created parameters');
   }
 
+  Future<void> createInvestigations(Investigations investigations) async {
+    final docId = investigations.bhtNumber.toString() +
+        '-' +
+        investigations.test +
+        '-' +
+        investigations.sampleDateTime.toIso8601String();
+
+    await investigationsRef.doc(parseDocID(docId)).set({
+      "bhtNumber": investigations.bhtNumber,
+      "createdDateTime": investigations.createdDateTime,
+      "sampleDateTime": investigations.sampleDateTime,
+      "test": investigations.test,
+      "value": investigations.value,
+    });
+
+    print('created investigations');
+  }
+
   Future<void> createPatientStatus(
       PatientStatus status, DateTime currentStatusDate) async {
     final docId = status.bhtNumber.toString() +
@@ -212,7 +264,7 @@ class PatientService {
         '-' +
         status.assignedDateTime.toIso8601String();
 
-    await patientStatusRef.doc(docId).set({
+    await patientStatusRef.doc(parseDocID(docId)).set({
       'bhtNumber': status.bhtNumber,
       'status': status.status,
       'value1': status.value1,
@@ -222,7 +274,7 @@ class PatientService {
     });
 
     if (currentStatusDate.isBefore(status.assignedDateTime)) {
-      await patientsRef.doc(status.bhtNumber.toString()).update({
+      await patientsRef.doc(parseDocID(status.bhtNumber.toString())).update({
         'currentStatus': status.status,
         'currentStatusValue1': status.value1,
         'currentStatusValue2': status.value2,

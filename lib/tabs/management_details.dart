@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hdu_management/common/common_style.dart';
+import 'package:hdu_management/models/investigations.dart';
 import 'package:hdu_management/models/parameters.dart';
 import 'package:hdu_management/models/patient.dart';
 import 'package:hdu_management/models/prescription.dart';
@@ -19,18 +20,23 @@ class ManagementDetails extends StatefulWidget {
 }
 
 class _ManagementDetailsState extends State<ManagementDetails> {
-  final _formStateKey = GlobalKey<FormState>();
+  final _parameterFormStateKey = GlobalKey<FormState>();
+  final _investigationFormStateKey = GlobalKey<FormState>();
+  final _investigationDateController = TextEditingController();
+  final _investigationTimeController = TextEditingController();
 
   late PatientService _patientService;
 
   late List<Parameters> _parametersList = [];
   late List<Prescription> _prescriptionsList = [];
+  late List<Investigations> _investigationsList = [];
 
   Map<String, String> _parameterInputMap = {};
   int _selectedSlot = -1;
 
   bool _isLoadingPrescriptions = true;
   bool _isLoadingParameters = true;
+  bool _isLoadingInvestigations = true;
 
   DateTime _selectedDay =
       DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
@@ -41,6 +47,28 @@ class _ManagementDetailsState extends State<ManagementDetails> {
   final GlobalKey<ScaffoldState> _scaffoldkey = new GlobalKey<ScaffoldState>();
 
   final _textEditingController = TextEditingController();
+
+  final _investigationsListItems = [
+    'WBC (10^9/l)',
+    'Hb (g/dl)',
+    'PLT (10^9/l)',
+    'CRP (mg/l)',
+    'S.Cr (mg/dl)',
+    'B.U (mg/dl)',
+    'Na+ (mEq/dl)',
+    'K+ (mEq/l)',
+    'Procalcitonin (hg/ml)',
+    'AST (u/l)',
+    'ALT (u/l)',
+    'PT (sec)',
+    'INR',
+    'LDH (u/l)',
+    'Albumin'
+  ];
+
+  int _selectedInvestigation = -1;
+  double? _investigationValue;
+  DateTime? _investigationSampleDTM = DateTime.now();
 
   void _loadPrescriptions() async {
     _isLoadingPrescriptions = true;
@@ -68,8 +96,23 @@ class _ManagementDetailsState extends State<ManagementDetails> {
     });
   }
 
+  void _loadInvestigations() async {
+    _isLoadingInvestigations = true;
+    await Future.delayed(Duration(milliseconds: 200));
+    final retrievedInvestigations =
+        await _patientService.getInvestigationsByPatientAndSelectedDate(
+      widget.patient.bhtNumber!,
+      DateTime(_selectedDay.year, _selectedDay.month, _selectedDay.day).add(
+          Duration(hours: DateTime.now().hour, minutes: DateTime.now().minute)),
+    );
+    setState(() {
+      this._investigationsList = retrievedInvestigations;
+      _isLoadingInvestigations = false;
+    });
+  }
+
   void _saveParameters() {
-    final formState = _formStateKey.currentState;
+    final formState = _parameterFormStateKey.currentState;
 
     if (formState!.validate()) {
       formState.save();
@@ -90,6 +133,28 @@ class _ManagementDetailsState extends State<ManagementDetails> {
 
       _loadParameters();
       _parameterInputMap = {};
+      formState.reset();
+      Navigator.pop(context);
+    }
+  }
+
+  void _saveInvestigations() {
+    final formState = _investigationFormStateKey.currentState;
+
+    if (formState!.validate()) {
+      formState.save();
+
+      var tobeSaved = Investigations(
+        bhtNumber: widget.patient.bhtNumber!,
+        test: _investigationsListItems.elementAt(_selectedInvestigation),
+        value: _investigationValue.toString(),
+        sampleDateTime: _investigationSampleDTM!,
+        createdDateTime: DateTime.now(),
+      );
+
+      _patientService.createInvestigations(tobeSaved);
+
+      _loadInvestigations();
       formState.reset();
       Navigator.pop(context);
     }
@@ -121,6 +186,203 @@ class _ManagementDetailsState extends State<ManagementDetails> {
     );
   }
 
+  List<DropdownMenuItem> getInvestigationDropDownMenuItems() {
+    List<DropdownMenuItem> items = _investigationsListItems.map((e) {
+      return DropdownMenuItem(
+        child: Text(e),
+        value: _investigationsListItems.indexOf(e),
+      );
+    }).toList();
+
+    return items;
+  }
+
+  onTapInvestigationDatePicker() async {
+    try {
+      this._investigationSampleDTM = await showDatePicker(
+        context: context,
+        initialDate: DateTime.now(),
+        firstDate: DateTime(2019, 01, 01),
+        lastDate: DateTime.now(),
+      );
+
+      _investigationDateController.text =
+          '${_investigationSampleDTM!.day}/${_investigationSampleDTM!.month}/${_investigationSampleDTM!.year}';
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  onTapInvestigationTimePicker() async {
+    try {
+      var time = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.now(),
+      );
+
+      _investigationTimeController.text = time!.format(context);
+      _investigationSampleDTM = _investigationSampleDTM!
+          .add(Duration(hours: time.hour, minutes: time.minute));
+
+      print(time);
+
+      print(_investigationSampleDTM);
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  void _showAddInvestigationsDialog() {
+    print('Refreshed!');
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          titlePadding: EdgeInsets.zero,
+          contentPadding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(
+              Radius.circular(20),
+            ),
+          ),
+          title: Container(
+            padding: EdgeInsets.all(20),
+            child: Text('Enter Investigation'),
+          ),
+          content: Container(
+            // height: 225,
+            child: Form(
+              key: _investigationFormStateKey,
+              autovalidateMode: AutovalidateMode.always,
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      height: 15,
+                    ),
+                    Container(
+                      // width: 300,
+                      child: DropdownButtonFormField(
+                        validator: (dynamic value) {
+                          if (value == null || value.toString().isEmpty) {
+                            return 'Select Test';
+                          }
+                          return null;
+                        },
+                        onChanged: (dynamic value) {
+                          setState(() {
+                            _selectedInvestigation =
+                                int.parse(value.toString());
+                          });
+
+                          print(_selectedInvestigation);
+                        },
+                        decoration: getInputDecorationTextFormField('Test'),
+                        items: getInvestigationDropDownMenuItems(),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 15,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: 115,
+                          child: TextFormField(
+                            validator: (input) {
+                              if (input == null || input.isEmpty) {
+                                return 'Select Date';
+                              }
+                              return null;
+                            },
+                            readOnly: true,
+                            controller: _investigationDateController,
+                            onTap: onTapInvestigationDatePicker,
+                            onChanged: (input) {
+                              print(input);
+                            },
+                            onSaved: (input) {},
+                            decoration: getInputDecorationTextFormField(
+                              'Sample Date',
+                            ),
+                            keyboardType:
+                                TextInputType.numberWithOptions(decimal: true),
+                          ),
+                        ),
+                        Container(
+                          width: 115,
+                          child: TextFormField(
+                            validator: (input) {
+                              if (input == null || input.isEmpty) {
+                                return 'Select Time';
+                              }
+                              return null;
+                            },
+                            readOnly: true,
+                            controller: _investigationTimeController,
+                            onTap: onTapInvestigationTimePicker,
+                            onChanged: (input) {
+                              print(input);
+                            },
+                            onSaved: (input) {},
+                            decoration: getInputDecorationTextFormField(
+                              'Sample Time',
+                            ),
+                            keyboardType:
+                                TextInputType.numberWithOptions(decimal: true),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 15,
+                    ),
+                    Container(
+                      // width: 100,
+                      child: TextFormField(
+                        validator: (input) {
+                          if (input != null && input.isNotEmpty) {
+                            return null;
+                          }
+                          return 'Please enter value';
+                        },
+                        onSaved: (input) {
+                          if (input != null && input.isNotEmpty)
+                            _investigationValue = double.parse(input);
+                        },
+                        decoration: getInputDecorationTextFormField(
+                          'Value',
+                        ),
+                        keyboardType:
+                            TextInputType.numberWithOptions(decimal: true),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+                onPressed: () {
+                  _investigationFormStateKey.currentState!.reset();
+                  Navigator.pop(context);
+                },
+                child: Text('Cancel')),
+            TextButton(
+                onPressed: () {
+                  _saveInvestigations();
+                },
+                child: Text('Add'))
+          ],
+        );
+      },
+    );
+  }
+
   void _showParameterInputDialog() {
     showDialog(
       context: context,
@@ -140,7 +402,7 @@ class _ManagementDetailsState extends State<ManagementDetails> {
           content: Container(
             height: 225,
             child: Form(
-              key: _formStateKey,
+              key: _parameterFormStateKey,
               autovalidateMode: AutovalidateMode.always,
               child: SingleChildScrollView(
                 child: Column(
@@ -150,6 +412,7 @@ class _ManagementDetailsState extends State<ManagementDetails> {
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Container(
                           width: 100,
@@ -300,6 +563,7 @@ class _ManagementDetailsState extends State<ManagementDetails> {
           actions: [
             TextButton(
                 onPressed: () {
+                  _parameterFormStateKey.currentState!.reset();
                   Navigator.pop(context);
                 },
                 child: Text('Cancel')),
@@ -385,6 +649,7 @@ class _ManagementDetailsState extends State<ManagementDetails> {
     _patientService = PatientService();
     _loadParameters();
     _loadPrescriptions();
+    _loadInvestigations();
   }
 
   @override
@@ -415,6 +680,7 @@ class _ManagementDetailsState extends State<ManagementDetails> {
 
               _loadParameters();
               _loadPrescriptions();
+              _loadInvestigations();
             },
             calendarFormat: CalendarFormat.week,
             onPageChanged: (focusedDay) {
@@ -438,7 +704,9 @@ class _ManagementDetailsState extends State<ManagementDetails> {
                   selectedDay: _selectedDay,
                   prescriptionsList: _prescriptionsList,
                   parametersList: _parametersList,
+                  investigationsList: _investigationsList,
                   onAddPrescription: _showAddPrescriptionModalSheet,
+                  onAddInvestigations: _showAddInvestigationsDialog,
                 ),
         ],
       ),
