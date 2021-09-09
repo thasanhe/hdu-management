@@ -12,14 +12,14 @@ import 'package:hdu_management/widgets/progress.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-class ManagementDetails extends StatefulWidget {
+class DailyManagement extends StatefulWidget {
   final Patient patient;
-  const ManagementDetails({Key? key, required this.patient}) : super(key: key);
+  const DailyManagement({Key? key, required this.patient}) : super(key: key);
   @override
-  _ManagementDetailsState createState() => _ManagementDetailsState();
+  _DailyManagementState createState() => _DailyManagementState();
 }
 
-class _ManagementDetailsState extends State<ManagementDetails> {
+class _DailyManagementState extends State<DailyManagement> {
   final _parameterFormStateKey = GlobalKey<FormState>();
   final _investigationFormStateKey = GlobalKey<FormState>();
   final _investigationDateController = TextEditingController();

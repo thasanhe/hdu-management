@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hdu_management/models/gender.dart';
 import 'package:hdu_management/models/patient.dart';
-import 'package:hdu_management/screens/patient_profile.dart';
+import 'package:hdu_management/screens/patient_management.dart';
 
 class PatientsTile extends StatefulWidget {
   final Patient patient;
@@ -44,7 +44,7 @@ class _PatientsTileState extends State<PatientsTile> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => PatientProfile(
+            builder: (context) => PatientManagement(
               bhtNumber: widget.patient.bhtNumber!,
               onRefresh: widget.onRefresh,
             ),

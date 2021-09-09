@@ -1,35 +1,39 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hdu_management/common/common_style.dart';
+import 'package:hdu_management/models/on_admission_status.dart';
 import 'package:hdu_management/models/patient.dart';
 import 'package:hdu_management/models/patient_status.dart';
-import 'package:hdu_management/tabs/management_details.dart';
+import 'package:hdu_management/tabs/profile.dart';
+import 'package:hdu_management/tabs/daily_management.dart';
 import 'package:hdu_management/services/patient_service.dart';
 import 'package:hdu_management/widgets/patient_profile_header.dart';
 import 'package:hdu_management/widgets/progress.dart';
 
 String selectedCategorie = "Adults";
 
-class PatientProfile extends StatefulWidget {
+class PatientManagement extends StatefulWidget {
   final double bhtNumber;
   final VoidCallback onRefresh;
-  const PatientProfile({
+  const PatientManagement({
     Key? key,
     required this.bhtNumber,
     required this.onRefresh,
   }) : super(key: key);
 
   @override
-  _PatientProfileState createState() => _PatientProfileState();
+  _PatientManagementState createState() => _PatientManagementState();
 }
 
-class _PatientProfileState extends State<PatientProfile>
+class _PatientManagementState extends State<PatientManagement>
     with SingleTickerProviderStateMixin {
   final _dateOfUpdateController = TextEditingController();
   Patient? patient;
+  OnAdmissionStatus? onAdmissionStatus;
 
   PatientService patientService = PatientService();
   bool isPatientFetched = false;
+  bool isOnAdmissionStatusFetched = false;
 
   late TabController tabController;
   int selectedIndex = 0;
@@ -46,10 +50,22 @@ class _PatientProfileState extends State<PatientProfile>
     });
   }
 
+  fetchOnAdmissionStatus() async {
+    this.isOnAdmissionStatusFetched = false;
+    var onAdmissionStatus =
+        await patientService.getOnAdmissionStatusByPatient(widget.bhtNumber);
+
+    setState(() {
+      this.onAdmissionStatus = onAdmissionStatus;
+      this.isOnAdmissionStatusFetched = true;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
     fetchPatient();
+    fetchOnAdmissionStatus();
     tabController = TabController(
       initialIndex: selectedIndex,
       length: 4,
@@ -352,7 +368,7 @@ class _PatientProfileState extends State<PatientProfile>
   Widget build(BuildContext context) {
     print('rendering');
     return Scaffold(
-      body: !isPatientFetched
+      body: !isPatientFetched || !isOnAdmissionStatusFetched
           ? circularProgress()
           : Container(
               color: Colors.white,
@@ -411,14 +427,13 @@ class _PatientProfileState extends State<PatientProfile>
                                     const EdgeInsets.only(top: 10, bottom: 10),
                                 child: TabBarView(children: <Widget>[
                                   Container(
-                                    child: Center(
-                                      child: Text('Display Profile',
-                                          style: TextStyle(
-                                              fontSize: 22,
-                                              fontWeight: FontWeight.bold)),
+                                    child: Profile(
+                                      patient: this.patient!,
+                                      onAdmissionStatus:
+                                          this.onAdmissionStatus!,
                                     ),
                                   ),
-                                  ManagementDetails(patient: patient!),
+                                  DailyManagement(patient: patient!),
                                   Container(
                                     child: Center(
                                       child: Text('Display Charts',

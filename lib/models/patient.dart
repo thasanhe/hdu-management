@@ -77,6 +77,8 @@ class Patient {
     Timestamp pcrRatDate = doc['pcrRatDate'] as Timestamp;
     Timestamp symptomsDate = doc['symptomsDate'] as Timestamp;
     Timestamp dateOfAdmissionHDU = doc['dateOfAdmissionHDU'] as Timestamp;
+    Timestamp dateOfAdmissionHospital =
+        doc['dateOfAdmissionHospital'] as Timestamp;
     Timestamp currentStatusDate = doc['currentStatusDate'] as Timestamp;
 
     double? currentStatusValue1;
@@ -126,6 +128,7 @@ class Patient {
       currentStatus: doc['currentStatus'],
       dateOfAdmissionHDU: dateOfAdmissionHDU.toDate(),
       bedNumber: doc['bedNumber'] != 100000 ? doc['bedNumber'] : null,
+      dateOfAdmissionHospital: dateOfAdmissionHospital.toDate(),
       currentStatusValue1: currentStatusValue1,
       currentStatusValue2: currentStatusValue2,
       currentStatusUnit: currentStatusUnit,
