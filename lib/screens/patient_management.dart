@@ -352,8 +352,7 @@ class _PatientManagementState extends State<PatientManagement>
       );
 
       try {
-        await patientService.createPatientStatus(
-            ps, patient!.currentStatusDate!);
+        await patientService.createPatientStatus(ps, patient!);
         fetchPatient();
         widget.onRefresh();
 

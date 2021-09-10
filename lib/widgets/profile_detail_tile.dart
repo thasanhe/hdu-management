@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
 
 class ProfileDetailTile extends StatelessWidget {
-  final IconData? icon;
-  final Color? iconBackgroundColor;
   final String? firstLine;
   final String? title;
   final String? thirdLine;
   final String? fourthLine;
   ProfileDetailTile({
-    this.icon,
-    this.iconBackgroundColor,
     this.firstLine,
     this.title,
     this.thirdLine,
