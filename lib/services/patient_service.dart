@@ -257,7 +257,7 @@ class PatientService {
   }
 
   Future<void> createPatientStatus(
-      PatientStatus status, DateTime currentStatusDate) async {
+      PatientStatus status, Patient patient) async {
     final docId = status.bhtNumber.toString() +
         '-' +
         status.status +
@@ -273,13 +273,18 @@ class PatientService {
       'assignedDateTime': status.assignedDateTime
     });
 
-    if (currentStatusDate.isBefore(status.assignedDateTime)) {
+    if (patient.currentStatusDate!.isBefore(status.assignedDateTime)) {
       await patientsRef.doc(parseDocID(status.bhtNumber.toString())).update({
         'currentStatus': status.status,
         'currentStatusValue1': status.value1,
         'currentStatusValue2': status.value2,
         'currentStatusUnit': status.unit,
         'currentStatusDate': status.assignedDateTime,
+        'bedNumber': status.status == 'Discharged' ||
+                status.status == 'Death' ||
+                status.status == 'Transferred'
+            ? 100000
+            : patient.bedNumber,
       });
     }
   }
