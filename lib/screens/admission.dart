@@ -328,7 +328,7 @@ class _AdmissionPageState extends State<Admission> {
   getTextFieldwithTags(
       String helperText, String hintText, List<String> tagsCollector) {
     return TextFieldTags(
-      textSeparators: [',', '.', ' '],
+      textSeparators: [',', '.'],
       tagsStyler: TagsStyler(
         tagTextStyle: TextStyle(color: Colors.white),
         tagDecoration: BoxDecoration(
@@ -350,12 +350,10 @@ class _AdmissionPageState extends State<Admission> {
       onTag: (tag) {
         if (tag.trim().isNotEmpty) {
           tagsCollector.add(tag);
-          print(tagsCollector);
         }
       },
       onDelete: (tag) {
         tagsCollector.remove(tag);
-        print(tagsCollector);
       },
     );
   }
@@ -465,8 +463,10 @@ class _AdmissionPageState extends State<Admission> {
                       SizedBox(
                         height: 15,
                       ),
-                      getTextFieldwithTags('Add Symptoms seperated by space',
-                          'Add Symptoms', symptomsList),
+                      getTextFieldwithTags(
+                          'Add Symptoms seperated by "." or ","',
+                          'Add Symptoms',
+                          symptomsList),
                       SizedBox(
                         height: 15,
                       ),
@@ -627,21 +627,23 @@ class _AdmissionPageState extends State<Admission> {
                         height: 15,
                       ),
                       getTextFieldwithTags(
-                          'Add co-mobidities seperated by space',
+                          'Add co-mobidities seperated by "." or ","',
                           'Add Co-Mobidities',
                           coMobList),
                       SizedBox(
                         height: 15,
                       ),
                       getTextFieldwithTags(
-                          'Add surgical history seperated by space',
+                          'Add surgical history seperated by "." or ","',
                           'Add Surgical History',
                           surgHistList),
                       SizedBox(
                         height: 15,
                       ),
-                      getTextFieldwithTags('Add alergies seperated by space',
-                          'Add Alergies', alergiesList),
+                      getTextFieldwithTags(
+                          'Add alergies seperated by "." or ","',
+                          'Add Alergies',
+                          alergiesList),
                     ],
                   ),
                 ),
