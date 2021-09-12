@@ -105,7 +105,9 @@ class Profile extends StatelessWidget {
                           ProfileDetailTile(
                             firstLine: patient.vaccinatedStatus == null
                                 ? 'Not Available'
-                                : '${patient.vaccine} - ${patient.vaccinatedStatus}',
+                                : patient.vaccinatedStatus == 'Not Vaccinated'
+                                    ? '${patient.vaccinatedStatus}'
+                                    : '${patient.vaccine} - ${patient.vaccinatedStatus}',
                             title: 'Vaccination Status',
                             thirdLine: patient.vaccinatedStatus != null &&
                                     patient.vaccinatedStatus != 'Not Vaccinated'
@@ -134,14 +136,15 @@ class Profile extends StatelessWidget {
                           ),
                           SizedBox(height: 15.0),
                           ProfileDetailTile(
-                            firstLine: onAdmissionStatus.alergies.isNotEmpty
+                            firstLine: onAdmissionStatus.coMobidities.isNotEmpty
                                 ? onAdmissionStatus.coMobidities.join(", ")
                                 : 'None',
                             title: 'Co-Mobidities',
                           ),
                           SizedBox(height: 15.0),
                           ProfileDetailTile(
-                            firstLine: onAdmissionStatus.alergies.isNotEmpty
+                            firstLine: onAdmissionStatus
+                                    .surgicalHistory.isNotEmpty
                                 ? onAdmissionStatus.surgicalHistory.join(", ")
                                 : 'None',
                             title: 'Surgical History',

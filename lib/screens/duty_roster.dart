@@ -14,7 +14,7 @@ class DutyRoster extends StatelessWidget {
         //   onPressed: () => launch('tel://0715864325'),
         //   child: Icon(Icons.call),
         // ),
-        Text('v0.0.18'),
+        Text('v0.0.20'),
       ],
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.center,
